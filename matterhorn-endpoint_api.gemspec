@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = Matterhorn::EndpointApi::VERSION
   spec.authors       = ["Daniel Fritschi"]
   spec.email         = ["daniel.fritschi@switch.ch"]
-  spec.summary       = %q{TODO: Write a short summary. Required.}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
+  spec.summary       = %q{Matterhorn Enpoint API}
+  spec.description   = %q{This Enpoint API is desind to write some ruby scripts against the Matterhorn}
   spec.homepage      = ""
   spec.license       = "MIT"
 
