@@ -1,4 +1,4 @@
-require "matterhorn/endpoint_api/version"
+require 'matterhorn/endpoint_api/version'
 
 module Matterhorn
   module EndpointApi
