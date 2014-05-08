@@ -1,6 +1,10 @@
-# Matterhorn::EndpointApi
+# Matterhorn Whymper
 
-TODO: Write a gem description
+matterhorn_whymper
+==================
+
+Ruby wrapper around the Matterhorn Endpoint API
+
 
 ## Installation
 
@@ -14,7 +18,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install matterhorn-endpoint_api
+    $ gem install matterhorn_whymper
 
 ## Usage
 
@@ -22,7 +26,7 @@ TODO: Write usage instructions here
 
 ## Contributing
 
-1. Fork it ( https://github.com/[my-github-username]/matterhorn-endpoint_api/fork )
+1. Fork it ( https://github.com/switch-ch/matterhorn_whymper/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
