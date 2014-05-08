@@ -1,8 +1,5 @@
 # Matterhorn Whymper
 
-matterhorn_whymper
-==================
-
 Ruby wrapper around the Matterhorn Endpoint API
 
 
@@ -10,7 +7,7 @@ Ruby wrapper around the Matterhorn Endpoint API
 
 Add this line to your application's Gemfile:
 
-    gem 'matterhorn-endpoint_api'
+    gem 'matterhorn_whymper'
 
 And then execute:
 
