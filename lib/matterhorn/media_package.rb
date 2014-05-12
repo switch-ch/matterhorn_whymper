@@ -24,7 +24,7 @@ module Matterhorn
         end
         .doc
       end
-      Matterhorn::EndpointApi.logger.debug { "Matterhorn::MediaPackage::initialize | doc = #{to_xml}" }
+      MatterhornWhymper.logger.debug { "Matterhorn::MediaPackage::initialize | doc = #{to_xml}" }
     end
 
   

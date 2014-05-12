@@ -1,0 +1,5 @@
+matterhorn:
+  system_account_user:     inser_system_user_name_here
+  system_account_password: insert_system_user_password_here
+  system_domain:           mh-admin.localdomain
+  system_protocol:         http

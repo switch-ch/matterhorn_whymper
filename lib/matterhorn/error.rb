@@ -1,10 +1,15 @@
-# Matterhorn Exceptions
+module Matterhorn
 
-class Matterhorn::Error < StandardError
-end
+# --- Matterhorn Exceptions ------------------------------------------------------------------------
 
-class Matterhorn::HttpClientError < Matterhorn::Error
-end
+  class Matterhorn::Error < StandardError
+  end
+  
+  class Matterhorn::HttpClientError < Matterhorn::Error
+  end
+  
+  class Matterhorn::HttpServerError < Matterhorn::Error
+  end
 
-class Matterhorn::HttpServerError < Matterhorn::Error
+
 end

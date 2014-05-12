@@ -7,8 +7,7 @@ describe MatterhornWhymper do
   end
 
   it "#info" do
-    expect(MatterhornWhymper.info).to include MatterhornWhymper
-    ::VERSION
+    expect(MatterhornWhymper.info).to include MatterhornWhymper::VERSION
   end
 
 end
