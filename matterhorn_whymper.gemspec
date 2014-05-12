@@ -1,16 +1,17 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'matterhorn/endpoint_api/version'
+require 'matterhorn_whymper/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "matterhorn-endpoint_api"
-  spec.version       = Matterhorn::EndpointApi::VERSION
+  spec.name          = "matterhorn_whymper"
+  spec.version       = MatterhornWhymper::VERSION
   spec.authors       = ["Daniel Fritschi"]
   spec.email         = ["daniel.fritschi@switch.ch"]
-  spec.summary       = %q{Matterhorn Enpoint API}
-  spec.description   = %q{This Enpoint API is desind to write some ruby scripts against the Matterhorn}
-  spec.homepage      = ""
+  spec.summary       = %q{Ruby wrapper around the Matterhorn Endpoint API}
+  spec.description   = %q{This Ruby wrapper is designed to write some ruby scripts against the
+                          Matterhorn Endpoint API}
+  spec.homepage      = "https://github.com/switch-ch/matterhorn_whymper"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")

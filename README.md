@@ -1,6 +1,6 @@
 # Matterhorn Whymper
 
-Ruby wrapper around the Matterhorn Endpoint API
+Ruby wrapper against the Matterhorn Endpoint API
 
 
 ## Installation
@@ -11,7 +11,7 @@ Add this line to your application's Gemfile:
 
 And then execute:
 
-    $ bundle
+    $ bundle install
 
 Or install it yourself as:
 
