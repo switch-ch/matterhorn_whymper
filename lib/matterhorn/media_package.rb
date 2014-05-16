@@ -1,34 +1,40 @@
 require 'nokogiri'
 
+
+# =================================================================================== Matterhorn ===
+
 module Matterhorn
+
+
+  # =================================================================== Matterhorn::MediaPackage ===
 
   class MediaPackage
    
-    # --- const definitions ------------------------------------------------------
+    # ------------------------------------------------------------------------ const definitions ---
+
     XML_NS_MEDIAPACKAGE = "http://mediapackage.opencastproject.org"
     
 
-    # --- initialization ---------------------------------------------------------
+    # --------------------------------------------------------------------------- initialization ---
   
     def initialize(path, xml = nil)
-      @path = path + (path[-1] == '/' ? '' : '/')   # guarantee that path ends with a slash
+      @path = path + (path[-1] == '/' ? '' : '/')            # guarantee that path ends with a slash
       if !xml.nil?
         @document = Nokogiri::XML(xml)
       else
         @document = Nokogiri::XML::Builder.new do |xml|
-          xml.mediapackage('xmlns' => XML_NS_MEDIAPACKAGE) {
+          xml.mediapackage('xmlns' => XML_NS_MEDIAPACKAGE) do
             xml.media
             xml.metadata
             xml.attachments
-          }
+          end
         end
         .doc
       end
-      MatterhornWhymper.logger.debug { "Matterhorn::MediaPackage::initialize | doc = #{to_xml}" }
     end
 
   
-    # --- methodes ---------------------------------------------------------------
+    # --------------------------------------------------------------------------------- methodes ---
 
     #  <attachments>
     #    <attachment type="switchcastrecorder/metadata">
@@ -36,6 +42,7 @@ module Matterhorn
     #      <url>metadata.plist</url>
     #    </attachment>
     #  </attachments>
+    #
     def add_attachment(file, flavor)
       Nokogiri::XML::Builder.with(@document.at('attachments')) do |xml|
         xml.attachment(:type => flavor) {
@@ -53,6 +60,7 @@ module Matterhorn
     #     <url>dublincore.xml</url>
     #   </catalog>
     # </metadata>
+    #
     def add_catalog(file, flavor, mimetype = 'text/xml')
       Nokogiri::XML::Builder.with(@document.at('metadata')) do |xml|
         xml.catalog(:type => flavor) {
@@ -82,6 +90,7 @@ module Matterhorn
     #     <url>source1/mux_2013_12-17T14_51_29_738.mov</url>
     #   </track>
     # </media>
+    #
     def add_track(file, flavor)
       Nokogiri::XML::Builder.with(@document.at('media')) do |xml|
         xml.track(:type => flavor) {
@@ -105,6 +114,7 @@ module Matterhorn
     end
 
 
-  end
+  end # ----------------------------------------------------------- end Matterhorn::MediaPackage ---
 
-end
+
+end # --------------------------------------------------------------------------- end Matterhorn ---

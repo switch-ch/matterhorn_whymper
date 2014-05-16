@@ -1,25 +1,37 @@
+# =================================================================================== Matterhorn ===
+
 module Matterhorn
+
+
+  # ======================================================================= Matterhorn::Endpoint ===
 
   class Endpoint
 
-    # --- attributes -------------------------------------------------------------
+    # ------------------------------------------------------------------------------- attributes ---
   
     attr_reader :http_client
   
 
-    # --- initialization ---------------------------------------------------------
+    # --------------------------------------------------------------------------- initialization ---
   
     def self.open(endpoint)
       if endpoint.respond_to? 'to_s'
         endpoint = endpoint.to_s.capitalize
       else
-        #TODO: error handling
+        raise(Matterhorn::Error, "Matterhorn::Endpoint::open | " +
+                                 "#{endpoint.inspect} does not respond to 'to_s'")
       end
       endpoint = Object.const_get('Matterhorn').const_get('Endpoint').const_get(endpoint).new
-  
-      yield endpoint
-  
-      endpoint.close
+      if endpoint.nil? || !endpoint.kind_of?(Matterhorn::Endpoint)
+        raise(Matterhorn::Error, "Matterhorn::Endpoint::open | " +
+                                 "#{endpoint ? endpoint.class.name : 'nil'} is not a sub class " +
+                                 "of 'Matterhorn::Endpoint'!")
+      end 
+      begin
+        yield endpoint
+      ensure
+        endpoint.close
+      end
     end  
   
   
@@ -30,11 +42,14 @@ module Matterhorn
     end
   
   
+    # --------------------------------------------------------------------------------- methodes ---
+
     def close
       http_client.close
     end
 
 
-  end
+  end # --------------------------------------------------------------- end Matterhorn::Endpoint ---
 
-end
+
+end # --------------------------------------------------------------------------- end Matterhorn ---

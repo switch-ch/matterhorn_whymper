@@ -1,15 +1,34 @@
+# =================================================================================== Matterhorn ===
+
 module Matterhorn
 
-# --- Matterhorn Exceptions ------------------------------------------------------------------------
 
-  class Matterhorn::Error < StandardError
+  # ====================================================================== several error classes ===
+
+  class Error < StandardError
   end
   
-  class Matterhorn::HttpClientError < Matterhorn::Error
+
+  class HttpGeneralError < Matterhorn::Error
+
+    attr_reader :code, :request, :response
+
+    def initialize(message, request, response)
+      @request = request
+      @response = response
+      @code = response.code.to_i
+      super(message)
+    end
+
   end
+
+
+  class HttpClientError < Matterhorn::HttpGeneralError
+  end
+
   
-  class Matterhorn::HttpServerError < Matterhorn::Error
+  class HttpServerError < Matterhorn::HttpGeneralError
   end
 
 
-end
+end # --------------------------------------------------------------------------- end Matterhorn ---
