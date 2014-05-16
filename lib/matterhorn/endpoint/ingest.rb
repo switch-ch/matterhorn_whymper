@@ -1,99 +1,155 @@
+# ================================================================= Matterhorn::Endpoint::Ingest ===
+
 class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
 
-  # --- attributes -------------------------------------------------------------
 
-
-  # --- end point methodes -----------------------------------------------------
+  # -------------------------------------------------------------------------- endpoint methodes ---
 
   def addAttachment(file, flavor)
-    if @media_pkg_remote.nil?
-      raise(Matterhorn::Error, "No media package is available!")
+    unless @media_pkg_remote then raise(Matterhorn::Error, "No media package is available!"); end
+    @media_pkg_local.add_attachment(file, flavor)    if @media_pkg_local
+    begin
+      @media_pkg_remote = http_client.post(
+        "ingest/addAttachment",
+        { 'flavor' => flavor,
+          'mediaPackage' => @media_pkg_remote,
+          'BODY' => file
+        }
+      ).body
+    rescue Matterhorn::HttpClientError => ex
+      MatterhornWhymper.logger.error { "#{self.class.name}::addAttachment | " +
+                                 "Media package not valid! / media package:\n#{@media_pkg_remote}" }
+      raise ex
+    rescue Matterhorn::HttpServerError => ex
+      MatterhornWhymper.logger.error { "#{self.class.name}::addAttachment | " +
+                                       "Internal server error on Matterhorn!" }
+      raise ex
     end
-    @media_pkg_local.add_attachment(file, flavor)
-    @media_pkg_remote = http_client.post(
-      "ingest/addAttachment",
-      { 'flavor' => flavor,
-        'mediaPackage' => @media_pkg_remote,
-        'BODY' => file
-      }
-    ).body
+    @media_pkg_remote
   end
 
 
   def addCatalog(file, flavor)
-    if @media_pkg_remote.nil?
-      raise(Matterhorn::Error, "No media package is available!")
+    unless @media_pkg_remote then raise(Matterhorn::Error, "No media package is available!"); end
+    @media_pkg_local.add_catalog(file, flavor)    if @media_pkg_local
+    begin
+      @media_pkg_remote = http_client.post(
+        "ingest/addCatalog",
+        { 'flavor' => flavor,
+          'mediaPackage' => @media_pkg_remote,
+          'BODY' => file
+        }
+      ).body
+    rescue Matterhorn::HttpClientError => ex
+      MatterhornWhymper.logger.error { "#{self.class.name}::addCatalog | " +
+                                 "Media package not valid! / media package:\n#{@media_pkg_remote}" }
+      raise ex
+    rescue Matterhorn::HttpServerError => ex
+      MatterhornWhymper.logger.error { "#{self.class.name}::addCatalog | " +
+                                       "Internal server error on Matterhorn!" }
+      raise ex
     end
-    @media_pkg_local.add_catalog(file, flavor)
-    @media_pkg_remote = http_client.post(
-      "ingest/addCatalog",
-      { 'flavor' => flavor,
-        'mediaPackage' => @media_pkg_remote,
-        'BODY' => file
-      }
-    ).body
+    @media_pkg_remote
   end
 
 
   def addDCCatalog(dublin_core)
-    if @media_pkg_remote.nil?
-      raise(Matterhorn::Error, "No media package is available!")
+    unless @media_pkg_remote then raise(Matterhorn::Error, "No media package is available!"); end
+    @media_pkg_local.add_dc_catalog(dublin_core)    if @media_pkg_local
+    begin
+      @media_pkg_remote = http_client.post(
+        "ingest/addDCCatalog",
+        { 'flavor' => 'dublincore/episode',
+          'mediaPackage' => @media_pkg_remote,
+          'dublinCore' => dublin_core
+        }
+      ).body
+    rescue Matterhorn::HttpClientError => ex
+      MatterhornWhymper.logger.error { "#{self.class.name}::addDCCatalog | " +
+                                 "Media package not valid! / media package:\n#{@media_pkg_remote}" }
+      raise ex
+    rescue Matterhorn::HttpServerError => ex
+      MatterhornWhymper.logger.error { "#{self.class.name}::addDCCatalog | " +
+                                       "Internal server error on Matterhorn!" }
+      raise ex
     end
-    @media_pkg_local.add_dc_catalog(dublin_core)
-    @media_pkg_remote = http_client.post(
-      "ingest/addDCCatalog",
-      { 'flavor' => 'dublincore/episode',
-        'mediaPackage' => @media_pkg_remote,
-        'dublinCore' => dublin_core
-      }
-    ).body
+    @media_pkg_remote
   end
 
      
   def addTrack(file, flavor)
-    if @media_pkg_remote.nil?
-      raise(Matterhorn::Error, "No media package is available!")
+    unless @media_pkg_remote then raise(Matterhorn::Error, "No media package is available!"); end
+    @media_pkg_local.add_track(file, flavor)    if @media_pkg_local
+    begin
+      @media_pkg_remote = http_client.post(
+        "ingest/addTrack",
+        { 'flavor' => flavor,
+          'mediaPackage' => @media_pkg_remote,
+          'BODY' => file
+        }
+      ).body
+    rescue Matterhorn::HttpClientError => ex
+      MatterhornWhymper.logger.error { "#{self.class.name}::addTrack | " +
+                                 "Media package not valid! / media package:\n#{@media_pkg_remote}" }
+      raise ex
+    rescue Matterhorn::HttpServerError => ex
+      MatterhornWhymper.logger.error { "#{self.class.name}::addTrack | " +
+                                       "Internal server error on Matterhorn!" }
+      raise ex
     end
-    @media_pkg_local.add_track(file, flavor)
-    @media_pkg_remote = http_client.post(
-      "ingest/addTrack",
-      { 'flavor' => flavor,
-        'mediaPackage' => @media_pkg_remote,
-        'BODY' => file
-      }
-    ).body
+    @media_pkg_remote
   end
 
 
-  def createMediaPackage(path = '')
-    if !@media_pkg_remote.nil?
-      raise(Matterhorn::Error, "A media package is allready created!")
+  # Create a media package on the matterhorn server.
+  # If the source_path to the source folder of uploaded items for that media package is given,
+  # then a local media description file 'manifest.xml' will be automaticaly saved in that folder.
+  #
+  def createMediaPackage(source_path = nil)
+    if @media_pkg_remote then raise(Matterhorn::Error, "A media package is allready created!"); end
+    @media_pkg_local = source_path ? Matterhorn::MediaPackage.new(source_path) : nil
+    begin
+      @media_pkg_remote = http_client.get(
+        "ingest/createMediaPackage"
+      ).body
+    rescue Matterhorn::HttpServerError => ex
+      MatterhornWhymper.logger.error { "#{self.class.name}::createMediaPackage | " +
+                                       "Internal server error on Matterhorn!" }
+      raise ex
     end
-    @media_pkg_local = Matterhorn::MediaPackage.new(path)
-    @media_pkg_remote = http_client.get(
-      "ingest/createMediaPackage"
-    ).body
+    @media_pkg_remote
   end
 
 
   def ingest(wdID = 'full', options = {})
-    if @media_pkg_remote.nil?
-      raise(Matterhorn::Error, "No media package is available!")
-    end
-    @media_pkg_local.save    if !@media_pkg_local.nil?
+    unless @media_pkg_remote then raise(Matterhorn::Error, "No media package is available!"); end
+    @media_pkg_local.save    if @media_pkg_local
     options['mediaPackage'] = @media_pkg_remote
-    @workflow_inst = http_client.post(
-      "ingest/ingest/#{wdID}",
-      options
-    ).body
+    begin
+      @workflow_inst = http_client.post(
+        "ingest/ingest/#{wdID}",
+        options
+      ).body
+    rescue Matterhorn::HttpClientError => ex
+      MatterhornWhymper.logger.error { "#{self.class.name}::ingest | " +
+                                 "Media package not valid! / media package:\n#{@media_pkg_remote}" }
+      raise ex
+    rescue Matterhorn::HttpServerError => ex
+      MatterhornWhymper.logger.error { "#{self.class.name}::ingest | " +
+                                       "Internal server error on Matterhorn!" }
+      raise ex
+    end
     workflow_instance
   end
 
 
+  # ---------------------------------------------------------------------------- helper methodes ---
+
   def media_package(kind = 'local')
-    if kind == 'local' && !@media_pkg_local.nil?
+    unless @media_pkg_remote then raise(Matterhorn::Error, "No media package is available!"); end
+    if kind == 'local' && @media_pkg_local
       return @media_pkg_local
-    elsif !@media_pkg_remote.nil?
+    elsif @media_pkg_remote
       Matterhorn::MediaPackage.new(@media_pkg_remote)
     else
       nil
@@ -113,12 +169,8 @@ DUBLIN_CORE
 
 
   def workflow_instance
-    if !@workflow_inst.nil?
-      Matterhorn::WorkflowInstance.new(@workflow_inst)
-    else
-      nil
-    end
+    @workflow_inst ? Matterhorn::WorkflowInstance.new(@workflow_inst) : nil
   end
 
   
-end
+end # --------------------------------------------------------- end Matterhorn::Endpoint::Ingest ---

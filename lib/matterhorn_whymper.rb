@@ -7,15 +7,22 @@ require 'matterhorn/media_package'
 require 'matterhorn/error'
 
 
+# ============================================================================ MatterhornWhymper ===
+
 module MatterhornWhymper
+
+
+  # --------------------------------------------------------------------------------- attributes --- 
+
+  class << self
+    attr_accessor :configuration, :logger
+  end
+ 
+
+  # ----------------------------------------------------------------------------------- methodes ---
 
   def self.info
     "Ruby wrapper against the Matterhorn Endpoint API. Version #{MatterhornWhymper::VERSION}"
-  end
- 
- 
-  class << self
-    attr_accessor :configuration, :logger
   end
  
  
@@ -32,16 +39,23 @@ module MatterhornWhymper
  
 
 
+  # =========================================================== MatterhornWhymper::Configuration ===
+
   class Configuration
 
+    # ------------------------------------------------------------------------------- attributes --- 
+
     attr_accessor :system_account_user, :system_account_password, :system_domain, :system_protocol
+
+
+    # --------------------------------------------------------------------------------- methodes ---
 
     def uri
       "#{system_protocol}://#{system_account_user}:#{system_account_password}@#{system_domain}"
     end
 
 
-  end
+  end # --------------------------------------------------- end MatterhornWhymper::Configuration ---
 
 
-end
+end # -------------------------------------------------------------------- end MatterhornWhymper ---

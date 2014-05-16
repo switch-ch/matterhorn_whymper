@@ -1,29 +1,30 @@
+require 'nokogiri'
+
+
+# =================================================================================== Matterhorn ===
+
 module Matterhorn
 
+  
+  # =========================================================================== Matterhorn::Smil ===
+
   class Smil
-  
-    # --- const definitions ------------------------------------------------------
-  
-    # --- attributes -------------------------------------------------------------
+    
+
+    # ------------------------------------------------------------------------------- attributes --- 
+
     attr_reader :head, :body
   
-    # --- validations ------------------------------------------------------------
   
-  
-    # --- callback declarations --------------------------------------------------
-  
-  
-    # --- relations --------------------------------------------------------------
-  
-  
-    # --- initialization ---------------------------------------------------------
+    # --------------------------------------------------------------------------- initialization ---
   
     def initialize()
       @head = Smil::Head.new
       @body = Smil::Body.new
     end
   
-    # --- methodes ---------------------------------------------------------------
+
+    # --------------------------------------------------------------------------------- methodes ---
 
     def save(smil_file)
       File.open(smil_file, 'w') do |file|
@@ -35,52 +36,52 @@ module Matterhorn
 
 
     def to_xml
-      StringIO.open('', 'w') do |strio|
-        bx = Builder::XmlMarkup.new(:target=>strio, :indent=>2)
-        bx.instruct! :xml, :version=>'1.1', :encoding => 'UTF-8'
-        bx.smil(:xmlns => "http://www.w3.org/ns/SMIL") do
-          head.to_xml(bx)
-          body.to_xml(bx)
-        end
-        strio.string
+      doc = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |bx|
+      bx.smil('xmlns' => "http://www.w3.org/ns/SMIL") do
+        head.to_xml(bx)
+        body.to_xml(bx)
       end
+      doc.to_xml
     end
 
-  
-    # ========================================================================== #
-    # === protected section                                                  === #
-    # ========================================================================== #
-    protected
-  
-  
-    # ========================================================================== #
-    # === private section                                                    === #
-    # ========================================================================== #
-    private
-  
-  end
+
+  end # ------------------------------------------------------------------- end Matterhorn::Smil ---
 
 
+
+  # ===================================================================== Matterhorn::Smil::Head ===
 
   class Smil::Head
 
-    def to_xml(builder)
-      builder.head do
+    def to_xml(bx)
+      bx.head do
       end
     end
 
-  end
+
+  end # ------------------------------------------------------------- end Matterhorn::Smil::Head ---
 
 
+
+  # ===================================================================== Matterhorn::Smil::Body ===
 
   class Smil::Body
 
+
+    # ------------------------------------------------------------------------------- attributes ---
+
     attr_reader :par_list
+
+
+    # --------------------------------------------------------------------------- initialization ---
 
     def initialize()
       @par_list = Array.new
     end
 
+
+    # --------------------------------------------------------------------------------- methodes ---
+    
     def add_par()
       par = Smil::Par.new
       @par_list << par
@@ -96,16 +97,23 @@ module Matterhorn
       end
     end
 
-  end
+
+  end # ------------------------------------------------------------- end Matterhorn::Smil::Body ---
 
 
+
+  # ================================================================== Matterhorn::Smil::Element ===
 
   class Smil::Element
 
-    # --- attributes -------------------------------------------------------------
+
+    # ------------------------------------------------------------------------------- attributes ---
+
     attr_reader :start_point, :end_point, :rel_begin, :duration, :parent
 
-    # --- initialization ---------------------------------------------------------
+
+    # --------------------------------------------------------------------------- initialization ---
+
     def initialize(parent = nil)
       @start_point = nil
       @end_point   = nil
@@ -114,7 +122,8 @@ module Matterhorn
       @parent      = parent
     end
 
-    # --- methodes ---------------------------------------------------------------
+
+    # --------------------------------------------------------------------------------- methodes ---
     
     def attr_list
       attr_list = Hash.new
@@ -127,10 +136,8 @@ module Matterhorn
       attr_list
     end
 
-
-    # ========================================================================== #
-    # === protected section                                                  === #
-    # ========================================================================== #
+    
+    # ------------------------------------------------------------------------ protected section ---
     protected
 
     def start_point=(new_start_point)
@@ -145,6 +152,7 @@ module Matterhorn
       @start_point = new_start_point
     end
 
+
     def end_point=(new_end_point)
       if new_end_point.kind_of? String
         # end_point is an absolut time position and must be in the format 2013-12-02T14:12:42.364
@@ -157,6 +165,7 @@ module Matterhorn
       @end_point = new_end_point
     end
 
+
     def rel_begin=(new_rel_begin)
       if new_rel_begin.kind_of? Fixnum
         new_rel_begin = new_rel_begin / 1000.0
@@ -167,6 +176,7 @@ module Matterhorn
       end
       @rel_begin = new_rel_begin
     end
+
 
     def duration=(new_duration)
       if new_duration.kind_of? Fixnum
@@ -181,6 +191,7 @@ module Matterhorn
       @end_point = start_point + new_duration   if !start_point.nil? && !new_duration.nil?
       @duration = new_duration
     end
+
 
     def update(sub_elem)
       if !sub_elem.start_point.nil? && (start_point.nil? || start_point > sub_elem.start_point)
@@ -203,14 +214,21 @@ module Matterhorn
       propagate(self)        if parent.nil?
     end
 
+
     def propagate(parent_elem)
     end
 
-  end
+
+  end # ---------------------------------------------------------- end Matterhorn::Smil::Element ---
 
 
+
+  # ====================================================================== Matterhorn::Smil::Par ===
 
   class Smil::Par < Smil::Element
+
+
+    # --------------------------------------------------------------------------- initialization ---
 
     def initialize()
       super
@@ -218,6 +236,8 @@ module Matterhorn
     end
 
 
+    # --------------------------------------------------------------------------------- methodes ---
+    
     def add_seq
       seq = Smil::Seq.new(self)
       @seq_list << seq
@@ -240,22 +260,32 @@ module Matterhorn
       end
     end
 
-  end
+
+  end # -------------------------------------------------------------- end Matterhorn::Smil::Par ---
 
 
+
+  # ====================================================================== Matterhorn::Smil::Seq ===
 
   class Smil::Seq < Smil::Element
+
+
+    # --------------------------------------------------------------------------- initialization ---
 
     def initialize(parent)
       super(parent)
       @track_list = Array.new
     end
 
+
+    # --------------------------------------------------------------------------------- methodes ---
+    
     def attr_list
       attrib_list = super
       attrib_list.delete(:begin)
       attrib_list
     end
+
 
     def add_track(kind, file, start_point, duration)
       track = Smil::Track.new(self, kind, file, start_point, duration)
@@ -263,6 +293,7 @@ module Matterhorn
       update(track)
       track
     end
+
 
     def propagate(parent_elem)
       @rel_begin = start_point - parent_elem.start_point
@@ -272,6 +303,7 @@ module Matterhorn
       end
     end
 
+
     def to_xml(bx)
       bx.seq(attr_list) do
         @track_list.each do |track|
@@ -280,10 +312,17 @@ module Matterhorn
       end
     end
 
-  end
+
+  end # -------------------------------------------------------------- end Matterhorn::Smil::Seq ---
 
   
+
+  # ====================================================================================== Track ===
+
   class Smil::Track < Smil::Element
+
+
+    # --------------------------------------------------------------------------- initialization ---
 
     def initialize(parent, kind, file, start_point, duration)
       super(parent)
@@ -293,18 +332,24 @@ module Matterhorn
       self.duration = duration
     end
 
+
+    # --------------------------------------------------------------------------------- methodes ---
+    
     def propagate(parent_elem)
       @rel_begin = start_point - parent_elem.start_point
     end
+
 
     def to_xml(bx)
       attributes = attr_list
       if !@src.nil?
         attributes[:src] = @src.to_s
       end
-      bx.tag!(@kind, attributes)
+      bx.tag_(@kind, attributes)
     end
 
-  end
 
-end
+  end # ------------------------------------------------------------ end Matterhorn::Smil::Track ---
+
+
+end # --------------------------------------------------------------------------- end Matterhorn ---
