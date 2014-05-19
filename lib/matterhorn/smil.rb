@@ -37,9 +37,10 @@ module Matterhorn
 
     def to_xml
       doc = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |bx|
-      bx.smil('xmlns' => "http://www.w3.org/ns/SMIL") do
-        head.to_xml(bx)
-        body.to_xml(bx)
+        bx.smil('xmlns' => "http://www.w3.org/ns/SMIL") do
+          head.to_xml(bx)
+          body.to_xml(bx)
+        end
       end
       doc.to_xml
     end

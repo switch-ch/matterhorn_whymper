@@ -130,19 +130,19 @@ module Matterhorn
     def handle_4xx_error(request, response)
       msg = log_message('handle_4xx_error', request, response)
       MatterhornWhymper.logger.debug { msg }
-      raise(Matterhorn::HttpClientError, msg, request, response)
+      raise(Matterhorn::HttpClientError.new(request, response), msg)
     end
   
     def handle_5xx_error(request, response)
       msg = log_message('handle_5xx_error', request, response)
       MatterhornWhymper.logger.debug { msg }
-      raise(Matterhorn::HttpServerError, msg, request, response)
+      raise(Matterhorn::HttpServerError.new(request, response), msg)
     end
   
     def handle_general_error(request, response)
       msg = log_message('handle_general_error', request, response)
       MatterhornWhymper.logger.debug { msg }
-      raise(Matterhorn::HttpGeneralError, msg, request, response)
+      raise(Matterhorn::HttpGeneralError.new(request, response), msg)
     end
   
   
