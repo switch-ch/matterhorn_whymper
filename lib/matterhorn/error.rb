@@ -11,13 +11,12 @@ module Matterhorn
 
   class HttpGeneralError < Matterhorn::Error
 
-    attr_reader :code, :request, :response
+    attr_reader :request, :response, :code
 
-    def initialize(message, request, response)
-      @request = request
+    def initialize(request, response)
+      @request  = request
       @response = response
-      @code = response.code.to_i
-      super(message)
+      @code     = response.code.to_i
     end
 
   end

@@ -2,9 +2,11 @@ require 'matterhorn_whymper/version'
 require 'matterhorn/endpoint'
 require 'matterhorn/endpoint/ingest'
 require 'matterhorn/endpoint/workflow'
+require 'matterhorn/error'
 require 'matterhorn/http_client'
 require 'matterhorn/media_package'
-require 'matterhorn/error'
+require 'matterhorn/smil'
+require 'matterhorn/workflow_instance'
 
 
 # ============================================================================ MatterhornWhymper ===
