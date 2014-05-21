@@ -42,7 +42,7 @@ module Matterhorn
           body.to_xml(bx)
         end
       end
-      doc.to_xml
+      doc.to_xml.sub(/version=\"1.0\"/, "version=\"1.1\"")
     end
 
 
