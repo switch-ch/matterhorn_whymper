@@ -55,7 +55,7 @@ module Matterhorn
   class Smil::Head
 
     def to_xml(bx)
-      bx.head " "
+      bx.head "\n  "
     end
 
 
@@ -345,7 +345,7 @@ module Matterhorn
       if !@src.nil?
         attributes[:src] = @src.to_s
       end
-      bx.tag_(@kind, attributes)
+      bx.send(@kind, attributes)
     end
 
 
