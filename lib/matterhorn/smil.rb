@@ -55,8 +55,7 @@ module Matterhorn
   class Smil::Head
 
     def to_xml(bx)
-      bx.head do
-      end
+      bx.head " "
     end
 
 
