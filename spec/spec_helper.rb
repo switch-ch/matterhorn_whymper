@@ -3,7 +3,8 @@ require 'yaml'
 
 Bundler.setup
 
-require 'matterhorn_whymper' # and any other gems you need
+require 'matterhorn_whymper'
+require 'webmock/rspec'
 
 RSpec.configure do |config|
   MatterhornWhymper.configure do |mh_config|
