@@ -6,6 +6,8 @@ Bundler.setup
 require 'matterhorn_whymper'
 require 'webmock/rspec'
 
+require 'fileutils'
+
 Dir.glob(File.expand_path('support/**/*.rb', __dir__)).each { |lib| require lib }
 
 RSpec.configure do |config|
@@ -18,6 +20,10 @@ RSpec.configure do |config|
     mh_config.system_domain           = mh_yml['matterhorn']['system_domain']
     mh_config.system_protocol         = mh_yml['matterhorn']['system_protocol']
   end
+
+  logfile_path = File.expand_path('../log/test.log', __dir__)
+  FileUtils.mkdir_p(File.dirname(logfile_path))
+  MatterhornWhymper.logger = Logger.new(File.open(logfile_path, 'a'))
 end
 
 module Kernel
