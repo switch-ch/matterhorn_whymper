@@ -19,3 +19,11 @@ RSpec.configure do |config|
     mh_config.system_protocol         = mh_yml['matterhorn']['system_protocol']
   end
 end
+
+module Kernel
+  private
+
+  def endpoint_configured?
+    MatterhornWhymper.configuration.system_domain.to_s.strip != ''
+  end
+end
