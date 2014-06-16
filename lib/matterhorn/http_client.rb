@@ -1,6 +1,6 @@
 require 'net/http/post/multipart'
 require 'net/http/digest_auth'
-
+require 'mime/types'
 
 # =================================================================================== Matterhorn ===
 
