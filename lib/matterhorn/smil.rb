@@ -37,7 +37,7 @@ module Matterhorn
 
     def to_xml
       doc = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |bx|
-        bx.smil('xmlns' => "http://www.w3.org/ns/SMIL") do
+        bx.smil('xmlns' => "http://www.w3.org/ns/SMIL", 'version' => '3.0') do
           head.to_xml(bx)
           body.to_xml(bx)
         end
@@ -70,13 +70,14 @@ module Matterhorn
 
     # ------------------------------------------------------------------------------- attributes ---
 
-    attr_reader :par_list
+    attr_reader :par_list, :seq_list
 
 
     # --------------------------------------------------------------------------- initialization ---
 
     def initialize()
       @par_list = Array.new
+      @seq_list = Array.new
     end
 
 
@@ -89,10 +90,20 @@ module Matterhorn
     end
 
 
+    def add_seq()
+      seq = Smil::Seq.new(nil)
+      @seq_list << seq
+      seq
+    end
+
+
     def to_xml(bx)
       bx.body do
         @par_list.each do |par|
           par.to_xml(bx)
+        end
+        @seq_list.each do |seq|
+          seq.to_xml(bx)
         end
       end
     end
@@ -275,6 +286,7 @@ module Matterhorn
     def initialize(parent)
       super(parent)
       @track_list = Array.new
+      @scene_list = Array.new
     end
 
 
@@ -295,6 +307,13 @@ module Matterhorn
     end
 
 
+    def add_scene(file, clip_begin, clip_end)
+      scene = Smil::Scene.new(self, file, clip_begin, clip_end)
+      @scene_list << scene
+      scene
+    end
+
+
     def propagate(parent_elem)
       @rel_begin = start_point - parent_elem.start_point
       @track_list.each do |track|
@@ -309,6 +328,9 @@ module Matterhorn
         @track_list.each do |track|
           track.to_xml(bx)
         end
+        @scene_list.each do |scene|
+          scene.to_xml(bx)
+        end
       end
     end
 
@@ -317,7 +339,7 @@ module Matterhorn
 
   
 
-  # ====================================================================================== Track ===
+  # ==================================================================== Matterhorn::Smil::Track ===
 
   class Smil::Track < Smil::Element
 
@@ -350,6 +372,39 @@ module Matterhorn
 
 
   end # ------------------------------------------------------------ end Matterhorn::Smil::Track ---
+
+
+  # ==================================================================== Matterhorn::Smil::Scene ===
+
+  class Smil::Scene < Smil::Element
+
+
+    # --------------------------------------------------------------------------- initialization ---
+
+    def initialize(parent, file, clip_begin, clip_end)
+      super(parent)
+      @src = file
+      @clip_begin = clip_begin
+      @clip_end   = clip_end
+    end
+
+
+    # --------------------------------------------------------------------------------- methodes ---
+    
+    def propagate(parent_elem)
+    end
+
+
+    def to_xml(bx)
+      attributes = Hash.new
+      attributes[:src] = @src.to_s
+      attributes[:clipBegin] = "#{(@clip_begin * 1000).round.to_s}ms"
+      attributes[:clipEnd]   = "#{(@clip_end   * 1000).round.to_s}ms"
+      bx.video(attributes)
+    end
+
+
+  end # ------------------------------------------------------------ end Matterhorn::Smil::Scene ---
 
 
 end # --------------------------------------------------------------------------- end Matterhorn ---
