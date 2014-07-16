@@ -63,7 +63,7 @@ module Matterhorn
       return @http_socket   if !@http_socket.nil? && @http_socket.started?
       @http_socket = Net::HTTP.new(host, port)
       @http_socket.use_ssl = ssl
-      if timeout.present?
+      if !timeout.nil?
         @http_socket.open_timeout = timeout
         @http_socket.read_timeout = timeout
       end

@@ -36,7 +36,7 @@ module MatterhornWhymper
       require 'logger'
       self.logger = Logger.new(STDOUT)
     end
-    self.http_timeout = nil
+    self.configuration.http_timeout = nil
     yield(configuration)    if block_given?
   end
  
