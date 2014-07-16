@@ -37,7 +37,8 @@ module Matterhorn
   
     def initialize
       @http_client = Matterhorn::HttpClient.new(
-        MatterhornWhymper.configuration.uri
+        MatterhornWhymper.configuration.uri,
+        MatterhornWhymper.configuration.http_timeout
       )
     end
   
