@@ -36,6 +36,7 @@ module MatterhornWhymper
       require 'logger'
       self.logger = Logger.new(STDOUT)
     end
+    self.http_timeout = nil
     yield(configuration)    if block_given?
   end
  
@@ -47,7 +48,8 @@ module MatterhornWhymper
 
     # ------------------------------------------------------------------------------- attributes --- 
 
-    attr_accessor :system_account_user, :system_account_password, :system_domain, :system_protocol
+    attr_accessor :system_account_user, :system_account_password, :system_domain, :system_protocol,
+                  :http_timeout
 
 
     # --------------------------------------------------------------------------------- methodes ---
