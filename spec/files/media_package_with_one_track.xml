@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mediapackage xmlns="http://mediapackage.opencastproject.org" start="2014-06-16T14:20:42Z" id="188d25d5-c93d-4b09-80ab-95e13a352b14">
+  <media>
+    <track type="source/raw" id="beef711f-6519-4cf6-8af5-8eac5aaa50c5"><tags/><url>http://mh-int-admin.bcc.switch.ch/files/mediapackage/188d25d5-c93d-4b09-80ab-95e13a352b14/beef711f-6519-4cf6-8af5-8eac5aaa50c5/isforAto1953.avi?AWSAccessKeyId=K8Z3D0TTLAO4O55WKZDD&amp;Expires=1403528601&amp;Signature=HShVG9L3lNeOOjffM9RuZ997oeo%3D</url></track>
+  </media>
+  <metadata/>
+  <attachments/>
+  <publications/>
+</mediapackage>

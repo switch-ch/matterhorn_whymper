@@ -76,18 +76,32 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
     @media_pkg_remote
   end
 
-     
-  def addTrack(file, flavor)
+  HTTP_PROTOCOL_RE = /^https?:/
+
+  def addTrack(file_or_url, flavor)
     unless @media_pkg_remote then raise(Matterhorn::Error, "No media package is available!"); end
-    @media_pkg_local.add_track(file, flavor)    if @media_pkg_local
+    @media_pkg_local.add_track(file_or_url, flavor) if @media_pkg_local
     begin
-      @media_pkg_remote = http_client.post(
-        "ingest/addTrack",
-        { 'flavor' => flavor,
-          'mediaPackage' => @media_pkg_remote,
-          'BODY' => file
-        }
-      ).body
+      @media_pkg_remote = 
+        if HTTP_PROTOCOL_RE =~ file_or_url
+          http_client.post(
+            "ingest/addTrack",
+            {
+              'flavor' => flavor,
+              'mediaPackage' => @media_pkg_remote,
+              'url' => file_or_url
+            }
+          ).body
+        else
+          http_client.post(
+            "ingest/addTrack",
+            {
+              'flavor' => flavor,
+              'mediaPackage' => @media_pkg_remote,
+              'BODY' => file_or_url
+            }
+          ).body
+        end
     rescue Matterhorn::HttpClientError => ex
       MatterhornWhymper.logger.error { "#{self.class.name}::addTrack | " +
                                  "Media package not valid! / media package:\n#{@media_pkg_remote}" }
