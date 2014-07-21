@@ -1,7 +1,7 @@
 module Support
   module FixtureHelpers
     def file_fixture_base_path
-      File.expand_path('../files', __dir__)
+      File.expand_path('../../files', __FILE__)
     end
 
     def file_fixture_filename(path)
