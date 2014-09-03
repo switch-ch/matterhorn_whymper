@@ -175,7 +175,7 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
     dublin_core = <<DUBLIN_CORE
 <?xml version="1.0" encoding="UTF-8"?>
 <dublincore xmlns="http://www.opencastproject.org/xsd/1.0/dublincore/" xmlns:dcterms="http://purl.org/dc/terms/">
-  <dcterms:title>#{title}</dcterms:title>
+  <dcterms:title>#{title.encode(:xml => :text)}</dcterms:title>
 </dublincore>
 DUBLIN_CORE
     addDCCatalog(dublin_core)
