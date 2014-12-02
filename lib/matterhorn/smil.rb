@@ -302,6 +302,7 @@ module Matterhorn
     def add_track(kind, file, start_point, duration)
       track = Smil::Track.new(self, kind, file, start_point, duration)
       @track_list << track
+      @track_list.sort! { |a, b| a.start_point <=> b.start_point }
       update(track)
       track
     end
@@ -309,6 +310,7 @@ module Matterhorn
 
     def add_scene(file, clip_begin, clip_end)
       scene = Smil::Scene.new(self, file, clip_begin, clip_end)
+      @scene_list.sort! { |a, b| a.clip_begin <=> b.clip_begin }
       @scene_list << scene
       scene
     end
@@ -378,6 +380,7 @@ module Matterhorn
 
   class Smil::Scene < Smil::Element
 
+    attr_reader :clip_begin, :clip_end
 
     # --------------------------------------------------------------------------- initialization ---
 
