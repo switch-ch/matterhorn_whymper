@@ -14,7 +14,7 @@ module Matterhorn
 
     # --------------------------------------------------------------------------- initialization ---
   
-    def self.open(endpoint)
+    def self.create(endpoint)
       if endpoint.respond_to? 'to_s'
         endpoint = endpoint.to_s.capitalize
       else
@@ -26,7 +26,13 @@ module Matterhorn
         raise(Matterhorn::Error, "Matterhorn::Endpoint::open | " +
                                  "#{endpoint ? endpoint.class.name : 'nil'} is not a sub class " +
                                  "of 'Matterhorn::Endpoint'!")
-      end 
+      end
+      endpoint
+    end
+
+
+    def self.open(endpoint)
+      endpoint = create(endpoint)
       begin
         yield endpoint
       ensure

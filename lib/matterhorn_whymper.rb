@@ -1,4 +1,6 @@
 require 'matterhorn_whymper/version'
+require 'matterhorn/acl'
+require 'matterhorn/dublin_core'
 require 'matterhorn/endpoint'
 require 'matterhorn/endpoint/ingest'
 require 'matterhorn/endpoint/workflow'
