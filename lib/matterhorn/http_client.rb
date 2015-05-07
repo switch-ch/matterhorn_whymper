@@ -13,17 +13,18 @@ module Matterhorn
     
     # ------------------------------------------------------------------------------- attributes ---
   
-    attr_reader :base_uri, :host, :port, :ssl, :timeout
+    attr_reader :base_uri, :host, :port, :ssl, :ssl_dont_verify_cert, :timeout
   
 
     # --------------------------------------------------------------------------- initialization ---
   
-    def initialize(base_uri, http_timeout = nil)
+    def initialize(base_uri, http_timeout = nil, ssl_dont_verify_cert = false)
       @base_uri  = URI.parse(base_uri)
       @host      = @base_uri.host
       @port      = @base_uri.port
       @ssl       = @port == 443 ? true : false
       @timeout   = http_timeout
+      @ssl_dont_verify_cert = ssl_dont_verify_cert
     end  
   
 
@@ -63,6 +64,7 @@ module Matterhorn
       return @http_socket   if !@http_socket.nil? && @http_socket.started?
       @http_socket = Net::HTTP.new(host, port)
       @http_socket.use_ssl = ssl
+      @http_socket.verify_mode = OpenSSL::SSL::VERIFY_NONE    if ssl && ssl_dont_verify_cert
       if !timeout.nil?
         @http_socket.open_timeout = timeout
         @http_socket.read_timeout = timeout
