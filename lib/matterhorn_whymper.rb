@@ -1,3 +1,9 @@
+# Define Matterhorn Namespace
+#
+module Matterhorn
+end
+
+
 require 'matterhorn_whymper/version'
 require 'matterhorn/acl'
 require 'matterhorn/dublin_core'

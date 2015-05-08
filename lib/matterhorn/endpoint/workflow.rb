@@ -17,8 +17,7 @@ class Matterhorn::Endpoint::Workflow < Matterhorn::Endpoint
                    "WorkflowInstance[#{wi_id}]: No workflow instance with that identifier exists." }
       else
         MatterhornWhymper.logger.error { "#{self.class.name}::instance | " +
-                                "WorkflowInstance[#{wi_id}]: Internal server error on Matterhorn!" }
-
+                "WorkflowInstance[#{wi_id}]: An internal server error has occurred on Matterhorn!" }
         raise ex
       end
     end
@@ -39,8 +38,7 @@ class Matterhorn::Endpoint::Workflow < Matterhorn::Endpoint
                    "WorkflowInstance[#{wi_id}]: No workflow instance with that identifier exists." }
       else
         MatterhornWhymper.logger.error { "#{self.class.name}::remove | " +
-                                "WorkflowInstance[#{wi_id}]: Internal server error on Matterhorn!" }
-
+                "WorkflowInstance[#{wi_id}]: An internal server error has occurred on Matterhorn!" }
         raise ex
       end
     end
@@ -61,8 +59,7 @@ class Matterhorn::Endpoint::Workflow < Matterhorn::Endpoint
          "WorkflowInstance[#{wi_id}]: No suspended workflow instance with that identifier exists." }
       else
         MatterhornWhymper.logger.error { "#{self.class.name}::resume | " +
-                                "WorkflowInstance[#{wi_id}]: Internal server error on Matterhorn!" }
-
+               "WorkflowInstance[#{wi_id}]: An internal server error has occurred on Matterhorn!" }
         raise ex
       end
     end
@@ -83,8 +80,7 @@ class Matterhorn::Endpoint::Workflow < Matterhorn::Endpoint
            "WorkflowInstance[#{wi_id}]: No running workflow instance with that identifier exists." }
       else
         MatterhornWhymper.logger.error { "#{self.class.name}::stop | " +
-                                "WorkflowInstance[#{wi_id}]: Internal server error on Matterhorn!" }
-
+                "WorkflowInstance[#{wi_id}]: An internal server error has occurred on Matterhorn!" }
         raise ex
       end
     end

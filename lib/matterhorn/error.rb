@@ -1,33 +1,29 @@
-# =================================================================================== Matterhorn ===
+# ====================================================================== several error classes ===
 
-module Matterhorn
-
-
-  # ====================================================================== several error classes ===
-
-  class Error < StandardError
+class Matterhorn::Error < StandardError
+  def self.format_message(msg, ex)
+    "#{msg}\n" +
+    "#{ex.class.name}: #{ex.to_s}\n    backtrace:\n    #{ex.backtrace.join("\n    ")}"
   end
-  
+end
 
-  class HttpGeneralError < Matterhorn::Error
 
-    attr_reader :request, :response, :code
+class Matterhorn::HttpGeneralError < Matterhorn::Error
 
-    def initialize(request, response)
-      @request  = request
-      @response = response
-      @code     = response.code.to_i
-    end
+  attr_reader :request, :response, :code
 
+  def initialize(request, response)
+    @request  = request
+    @response = response
+    @code     = response.code.to_i
   end
 
-
-  class HttpClientError < Matterhorn::HttpGeneralError
-  end
-
-  
-  class HttpServerError < Matterhorn::HttpGeneralError
-  end
+end
 
 
-end # --------------------------------------------------------------------------- end Matterhorn ---
+class Matterhorn::HttpClientError < Matterhorn::HttpGeneralError
+end
+
+
+class Matterhorn::HttpServerError < Matterhorn::HttpGeneralError
+end

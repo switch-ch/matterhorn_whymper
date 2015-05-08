@@ -22,7 +22,7 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
       raise ex
     rescue Matterhorn::HttpServerError => ex
       MatterhornWhymper.logger.error { "#{self.class.name}::addAttachment | " +
-                                       "Internal server error on Matterhorn!" }
+                                       "An internal server error has occurred on Matterhorn!" }
       raise ex
     end
     @media_pkg_remote
@@ -46,7 +46,7 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
       raise ex
     rescue Matterhorn::HttpServerError => ex
       MatterhornWhymper.logger.error { "#{self.class.name}::addCatalog | " +
-                                       "Internal server error on Matterhorn!" }
+                                       "An internal server error has occurred on Matterhorn!" }
       raise ex
     end
     @media_pkg_remote
@@ -70,7 +70,7 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
       raise ex
     rescue Matterhorn::HttpServerError => ex
       MatterhornWhymper.logger.error { "#{self.class.name}::addDCCatalog | " +
-                                       "Internal server error on Matterhorn!" }
+                                       "An internal server error has occurred on Matterhorn!" }
       raise ex
     end
     @media_pkg_remote
@@ -108,7 +108,7 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
       raise ex
     rescue Matterhorn::HttpServerError => ex
       MatterhornWhymper.logger.error { "#{self.class.name}::addTrack | " +
-                                       "Internal server error on Matterhorn!" }
+                                       "An internal server error has occurred on Matterhorn!" }
       raise ex
     end
     @media_pkg_remote
@@ -128,7 +128,7 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
       ).body
     rescue Matterhorn::HttpServerError => ex
       MatterhornWhymper.logger.error { "#{self.class.name}::createMediaPackage | " +
-                                       "Internal server error on Matterhorn!" }
+                                       "An internal server error has occurred on Matterhorn!" }
       raise ex
     end
     @media_pkg_remote
@@ -150,7 +150,7 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
       raise ex
     rescue Matterhorn::HttpServerError => ex
       MatterhornWhymper.logger.error { "#{self.class.name}::ingest | " +
-                                       "Internal server error on Matterhorn!" }
+                                       "An internal server error has occurred on Matterhorn!" }
       raise ex
     end
     workflow_instance
