@@ -10,25 +10,27 @@ class Matterhorn::Endpoint::Series < Matterhorn::Endpoint
 
   # ------------------------------------------------------------------------------------- create ---
 
+  # Create a new Series on Mattherhorn.
+  # Return the dublin core of the created Series.
+  # In the property dcterms:identifier is written the Matterhorn Series Id.
+  #
   def create(dublin_core, acl = nil)
-    created = false
+    dc = nil
     begin
       split_response http_client.post(
         "series",
         { 'series' => dublin_core.to_xml, 'acl' => acl.to_xml }
       )
-      MatterhornWhymper.logger.debug {"#{self.class.name}#create | " +
-                                      "Series content: #{response_body}" }
-      created = true
+      dc = Matterhorn::DublinCore.new(response_body)
     rescue => ex
       exception_handler('create', ex, {
           400 => "The required form params were missing to create the series!\n" +
                  "    dubline_core:\n#{dublin_core.inspect}\n    acl:\n#{acl.inspect}",
-          401 => "It is required to authenticate first, before create a series!"
+          401 => "Unauthorized. It is required to authenticate first, before create a series!"
         }
       )
     end
-    created
+    dc
   end
 
 
@@ -43,7 +45,7 @@ class Matterhorn::Endpoint::Series < Matterhorn::Endpoint
       dc_model = Matterhorn::DublinCore.new(response_body)
     rescue => ex
       exception_handler('read', ex, {
-          401 => "It is required to authenticate first, " +
+          401 => "Unauthorized. It is required to authenticate first, " +
                  "before get the content of series #{series_id}.",
           403 => "It is forbidden to get the content of series #{series_id}.",
           404 => "The content of series #{series_id} could not be get."
@@ -60,11 +62,14 @@ class Matterhorn::Endpoint::Series < Matterhorn::Endpoint
       split_response http_client.get(
         "series/series.xml#{build_query_str(options)}"
       )
-      # TODO: dc_models = res.body.each ...
+      Nokogiri::XML(response_body).
+      xpath("/dublincorelist/xmlns:dublincore", Matterhorn::DublinCore::NS).each do |dc_elem|
+        dc_models << Matterhorn::DublinCore.new(dc_elem.to_xml)
+      end
     rescue => ex
       exception_handler('filter', ex, {
-          401 => "It is required to authenticate first, " +
-                 "before get the content of series #{series_id}."
+          401 => "Unauthorized. It is required to authenticate first, " +
+                 "before filter series."
         }
       )
     end
@@ -105,6 +110,25 @@ class Matterhorn::Endpoint::Series < Matterhorn::Endpoint
   
   # ------------------------------------------------------------------------------------- update ---
 
+  def update_acl(series_id, acl)
+    acl_updated = false
+    begin
+      split_response http_client.post(
+        "series/#{series_id}/accesscontrol", { 'acl' => acl.to_xml }
+      )
+      acl_updated = true
+    rescue => ex
+      exception_handler('update_acl', ex, {
+          400 => "Bad request. The required param acl was missing. acl: #{acl.inspect}",
+          401 => "Unauthorized. It is required to authenticate first, " +
+                 "before update the acl of series #{series_id}.",
+          404 => "The series #{series_id} could not be found."
+        }
+      )
+    end
+    acl_updated
+  end
+  
 
   # ------------------------------------------------------------------------------------- delete ---
 
@@ -117,8 +141,8 @@ class Matterhorn::Endpoint::Series < Matterhorn::Endpoint
       deleted = true
     rescue => ex
       exception_handler('delete', ex, {
-          401 => "It is required to authenticate first, " +
-                 "before get the content of series #{series_id}.",
+          401 => "Unauthorized. It is required to authenticate first, " +
+                 "before delete series #{series_id}.",
           404 => "The series #{series_id} could not be found."
         }
       )
@@ -133,7 +157,7 @@ class Matterhorn::Endpoint::Series < Matterhorn::Endpoint
   def build_query_str(options)
     query_str = ''
     options.each do |key, value|
-      query_str << query_str.empty? ? '?' : '&'
+      query_str << (query_str.empty? ? '?' : '&')
       query_str << "#{key.to_s}=#{value.to_s}"
     end
     URI.encode(query_str)

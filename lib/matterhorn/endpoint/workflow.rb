@@ -48,7 +48,7 @@ class Matterhorn::Endpoint::Workflow < Matterhorn::Endpoint
       )
       wi = response_body
     rescue => ex
-      exception_handler('create', ex, {
+      exception_handler('resume', ex, {
           404 => "WorkflowInstance[#{wi_id}]: No suspended workflow instance " +
                  "with that identifier exists."
         }
@@ -67,7 +67,7 @@ class Matterhorn::Endpoint::Workflow < Matterhorn::Endpoint
       )
       wi = response_body
     rescue => ex
-      exception_handler('create', ex, {
+      exception_handler('stop', ex, {
           404 => "WorkflowInstance[#{wi_id}]: No running workflow instance " +
                  "with that identifier exists."
         }

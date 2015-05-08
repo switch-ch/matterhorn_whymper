@@ -46,11 +46,11 @@ class Matterhorn::Acl
     if !xml.nil?
       doc = Nokogiri::XML(xml)
       @aces = []
-      doc.xpath("/ace").each do |ace_elem|
+      doc.xpath("/xmlns:acl/xmlns:ace").each do |ace_elem|
         ace = Ace.new
-        ace = ace_elem.at_xpath("/role").content
-        ace = ace_elem.at_xpath("/action").content
-        ace = ace_elem.at_xpath("/allow").content
+        ace.role   = ace_elem.at_xpath("xmlns:role").content
+        ace.action = ace_elem.at_xpath("xmlns:action").content
+        ace.allow  = ace_elem.at_xpath("xmlns:allow").content
         @aces << ace
       end
     else

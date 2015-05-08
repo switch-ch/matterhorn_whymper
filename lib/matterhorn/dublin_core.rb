@@ -72,76 +72,6 @@ class Matterhorn::DublinCore
   end
 
   
-  def dcterms_title
-    get_value('title', 'dcterms')
-  end
-
-
-  def dcterms_title=(title)
-    set_value('title', title, 'dcterms')
-  end
-
-
-  def dcterms_creator
-    get_value('creator', 'dcterms')
-  end
-
-
-  def dcterms_creator=(creator)
-    set_value('creator', creator, 'dcterms')
-  end
-
-
-  def dcterms_contributor
-    get_value('contributor', 'dcterms')
-  end
-
-
-  def dcterms_contributor=(contributor)
-    set_value('contributor', contributor, 'dcterms')
-  end
-
-
-  def dcterms_subject
-    get_value('subject', 'dcterms')
-  end
-
-
-  def dcterms_subject=(subject)
-    set_value('subject', subject, 'dcterms')
-  end
-
-
-  def dcterms_language
-    get_value('language', 'dcterms')
-  end
-
-
-  def dcterms_language=(language)
-    set_value('language', language, 'dcterms')
-  end
-
-
-  def dcterms_license
-    get_value('license', 'dcterms')
-  end
-
-
-  def dcterms_license=(license)
-    set_value('license', license, 'dcterms')
-  end
-
-
-  def dcterms_description
-    get_value('description', 'dcterms')
-  end
-
-
-  def dcterms_description=(description)
-    set_value('description', description, 'dcterms')
-  end
-
-
   def save(file)
     File.open(file, 'w') do |file|
       file.write(@document.to_xml)
@@ -154,6 +84,49 @@ class Matterhorn::DublinCore
   end
 
 
+  def inspect
+    to_xml.to_s
+  end
+
+
+  def method_missing(method, *args, &block)
+    # analyse mehtod
+    splitted_method = method.to_s.split('_')
+    if splitted_method.first == 'add'
+      method_name = :add_value
+      splitted_method.shift
+    elsif splitted_method.first == 'list'
+      method_name = :list_value
+      splitted_method.shift
+    elsif splitted_method.last.end_with?('=')
+      method_name = :set_value
+      splitted_method.last.chop!
+    else
+      method_name = :get_value
+    end
+
+    # namespace, key and value
+    namespace = if !get_ns(splitted_method.first).nil?
+                  splitted_method.shift
+                else
+                  'xmlns'
+                end
+    key       = splitted_method.join('_')
+    value     = args[0]
+    MatterhornWhymper.logger.debug { "#{self.class.name}#method_missing | " +
+                                     "method: #{method_name.to_s}; namespace: #{namespace}; " +
+                                     "key: #{key}; value: #{value.to_s}" }
+
+    # call method
+    params = case method_name
+             when :get_value then [namespace, key]
+             when :set_value then [namespace, key, args[0].to_s]
+             when :add_value then [namespace, key, args[0].to_s]
+             end
+    send(method_name, *params)
+  end  
+
+
   # ------------------------------------------------------------------------------------ helpers ---
 
   def get_ns(ns)
@@ -161,15 +134,15 @@ class Matterhorn::DublinCore
   end
 
 
-  def get_value(key, ns = nil)
-    elem = @document.xpath("/*/#{ns.nil? ? '' : ns + ':'}#{key}").first
+  def get_value(ns, key)
+    elem = @document.xpath("/xmlns:dublincore/#{ns}:#{key}").first
     return nil    if elem.nil?
     elem.content
   end
 
 
-  def set_value(key, value, ns = nil)
-    if !(elem = @document.at_xpath("/*/#{ns}:#{key}")).nil?
+  def set_value(ns, key, value)
+    if !(elem = @document.at_xpath("/xmlns:dublincore/#{ns}:#{key}")).nil?
       elem.content = value
     else
       elem = Nokogiri::XML::Element.new(key, @document)
@@ -181,8 +154,8 @@ class Matterhorn::DublinCore
   end
 
 
-  def add_value(key, value, ns = nil)
-    sibling = @document.xpath("/*/#{ns}:#{key}").last
+  def add_value(ns, key, value)
+    sibling = @document.xpath("/xmlns:dublincore/#{ns}:#{key}").last
     elem = Nokogiri::XML::Element.new(key, @document)
     elem.content = value
     elem.namespace = get_ns(ns)    unless ns.nil?
@@ -195,9 +168,4 @@ class Matterhorn::DublinCore
   end
 
   
-  def inspect
-    to_xml.to_s
-  end
-
-
 end # --------------------------------------------------------------- end Matterhorn::DublinCore ---
