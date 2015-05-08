@@ -9,20 +9,19 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
     unless @media_pkg_remote then raise(Matterhorn::Error, "No media package is available!"); end
     @media_pkg_local.add_attachment(file, flavor)    if @media_pkg_local
     begin
-      @media_pkg_remote = http_client.post(
+      spit_response http_client.post(
         "ingest/addAttachment",
         { 'flavor' => flavor,
           'mediaPackage' => @media_pkg_remote,
           'BODY' => file
         }
-      ).body
-    rescue Matterhorn::HttpClientError => ex
-      MatterhornWhymper.logger.error { "#{self.class.name}::addAttachment | " +
-                                 "Media package not valid! / media package:\n#{@media_pkg_remote}" }
-      raise ex
-    rescue Matterhorn::HttpServerError => ex
-      MatterhornWhymper.logger.error { "#{self.class.name}::addAttachment | " +
-                                       "An internal server error has occurred on Matterhorn!" }
+      )
+      @media_pkg_remote = response_body
+    rescue => ex
+      exception_handler('addAttachment', ex, {
+          400 => "Media package not valid! / media package:\n#{@media_pkg_remote}"
+        }
+      )
       raise ex
     end
     @media_pkg_remote
@@ -33,20 +32,19 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
     unless @media_pkg_remote then raise(Matterhorn::Error, "No media package is available!"); end
     @media_pkg_local.add_catalog(file, flavor)    if @media_pkg_local
     begin
-      @media_pkg_remote = http_client.post(
+      split_response http_client.post(
         "ingest/addCatalog",
         { 'flavor' => flavor,
           'mediaPackage' => @media_pkg_remote,
           'BODY' => file
         }
-      ).body
-    rescue Matterhorn::HttpClientError => ex
-      MatterhornWhymper.logger.error { "#{self.class.name}::addCatalog | " +
-                                 "Media package not valid! / media package:\n#{@media_pkg_remote}" }
-      raise ex
-    rescue Matterhorn::HttpServerError => ex
-      MatterhornWhymper.logger.error { "#{self.class.name}::addCatalog | " +
-                                       "An internal server error has occurred on Matterhorn!" }
+      )
+      @media_pkg_remote = response_body
+    rescue => ex
+      exception_handler('addCatalog', ex, {
+          400 => "Media package not valid! / media package:\n#{@media_pkg_remote}"
+        }
+      )
       raise ex
     end
     @media_pkg_remote
@@ -57,20 +55,19 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
     unless @media_pkg_remote then raise(Matterhorn::Error, "No media package is available!"); end
     @media_pkg_local.add_dc_catalog(dublin_core)    if @media_pkg_local
     begin
-      @media_pkg_remote = http_client.post(
+      split_response http_client.post(
         "ingest/addDCCatalog",
         { 'flavor' => 'dublincore/episode',
           'mediaPackage' => @media_pkg_remote,
           'dublinCore' => dublin_core
         }
-      ).body
-    rescue Matterhorn::HttpClientError => ex
-      MatterhornWhymper.logger.error { "#{self.class.name}::addDCCatalog | " +
-                                 "Media package not valid! / media package:\n#{@media_pkg_remote}" }
-      raise ex
-    rescue Matterhorn::HttpServerError => ex
-      MatterhornWhymper.logger.error { "#{self.class.name}::addDCCatalog | " +
-                                       "An internal server error has occurred on Matterhorn!" }
+      )
+      @media_pkg_remote = response_body
+    rescue => ex
+      exception_handler('create', ex, {
+          400 => "Media package not valid! / media package:\n#{@media_pkg_remote}"
+        }
+      )
       raise ex
     end
     @media_pkg_remote
@@ -82,33 +79,29 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
     unless @media_pkg_remote then raise(Matterhorn::Error, "No media package is available!"); end
     @media_pkg_local.add_track(file_or_url, flavor) if @media_pkg_local
     begin
-      @media_pkg_remote = 
-        if HTTP_PROTOCOL_RE =~ file_or_url
-          http_client.post(
-            "ingest/addTrack",
-            {
-              'flavor' => flavor,
-              'mediaPackage' => @media_pkg_remote,
-              'url' => file_or_url
-            }
-          ).body
-        else
-          http_client.post(
-            "ingest/addTrack",
-            {
-              'flavor' => flavor,
-              'mediaPackage' => @media_pkg_remote,
-              'BODY' => file_or_url
-            }
-          ).body
-        end
-    rescue Matterhorn::HttpClientError => ex
-      MatterhornWhymper.logger.error { "#{self.class.name}::addTrack | " +
-                                 "Media package not valid! / media package:\n#{@media_pkg_remote}" }
-      raise ex
-    rescue Matterhorn::HttpServerError => ex
-      MatterhornWhymper.logger.error { "#{self.class.name}::addTrack | " +
-                                       "An internal server error has occurred on Matterhorn!" }
+      if HTTP_PROTOCOL_RE =~ file_or_url
+        split_response http_client.post(
+          "ingest/addTrack",
+          { 'flavor' => flavor,
+            'mediaPackage' => @media_pkg_remote,
+            'url' => file_or_url
+          }
+        )
+      else
+        split_response http_client.post(
+          "ingest/addTrack",
+          { 'flavor' => flavor,
+            'mediaPackage' => @media_pkg_remote,
+            'BODY' => file_or_url
+          }
+        )
+      end
+      @media_pkg_remote = response_body
+    rescue => ex
+      exception_handler('addTrack', ex, {
+          400 => "Media package not valid! / media package:\n#{@media_pkg_remote}"
+        }
+      )
       raise ex
     end
     @media_pkg_remote
@@ -123,12 +116,12 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
     if @media_pkg_remote then raise(Matterhorn::Error, "A media package is allready created!"); end
     @media_pkg_local = source_path ? Matterhorn::MediaPackage.new(source_path) : nil
     begin
-      @media_pkg_remote = http_client.get(
+      split_response http_client.get(
         "ingest/createMediaPackage"
-      ).body
-    rescue Matterhorn::HttpServerError => ex
-      MatterhornWhymper.logger.error { "#{self.class.name}::createMediaPackage | " +
-                                       "An internal server error has occurred on Matterhorn!" }
+      )
+      @media_pkg_remote = response_body
+    rescue => ex
+      exception_handler('createMediaPackage', ex, {})
       raise ex
     end
     @media_pkg_remote
@@ -140,17 +133,16 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
     @media_pkg_local.save    if @media_pkg_local
     options['mediaPackage'] = @media_pkg_remote
     begin
-      @workflow_inst = http_client.post(
+      split_response http_client.post(
         "ingest/ingest/#{wdID}",
         options
-      ).body
-    rescue Matterhorn::HttpClientError => ex
-      MatterhornWhymper.logger.error { "#{self.class.name}::ingest | " +
-                                 "Media package not valid! / media package:\n#{@media_pkg_remote}" }
-      raise ex
-    rescue Matterhorn::HttpServerError => ex
-      MatterhornWhymper.logger.error { "#{self.class.name}::ingest | " +
-                                       "An internal server error has occurred on Matterhorn!" }
+      )
+      @workflow_inst = response_body
+    rescue => ex
+      exception_handler('create', ex, {
+          400 => "Media package not valid! / media package:\n#{@media_pkg_remote}"
+        }
+      )
       raise ex
     end
     workflow_instance
