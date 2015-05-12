@@ -19,7 +19,7 @@ class Matterhorn::Endpoint::Series < Matterhorn::Endpoint
     begin
       split_response http_client.post(
         "series",
-        { 'series' => dublin_core.to_xml, 'acl' => acl.to_xml }
+        { 'series' => dublin_core.to_xml, 'acl' => acl ? acl.to_xml : '' }
       )
       dc = Matterhorn::DublinCore.new(response_body)
     rescue => ex
@@ -56,7 +56,24 @@ class Matterhorn::Endpoint::Series < Matterhorn::Endpoint
   end
 
   
-  def filter(options)
+  def read_acl(series_id)
+    acl_model = nil
+    begin
+      split_response http_client.get(
+        "series/#{series_id}/acl.xml"
+      )
+      acl_model = Matterhorn::Acl.new(response_body)
+    rescue => ex
+      exception_handler('acl', ex, {
+          404 => "The acl of series #{series_id} could not be found."
+        }
+      )
+    end
+    acl_model
+  end
+
+  
+  def find(options)
     dc_models = []
     begin
       split_response http_client.get(
@@ -91,24 +108,26 @@ class Matterhorn::Endpoint::Series < Matterhorn::Endpoint
   end
 
   
-  def acl(series_id)
-    acl_model = nil
-    begin
-      split_response http_client.get(
-        "series/#{series_id}/acl.xml"
-      )
-      acl_model = Matterhorn::Acl.new(response_body)
-    rescue => ex
-      exception_handler('acl', ex, {
-          404 => "The acl of series #{series_id} could not be found."
-        }
-      )
+  # ------------------------------------------------------------------------------------- update ---
+
+  # Updates a given Series on Mattherhorn.
+  # In the property dcterms:identifier must be written the Matterhorn Series Id of the Series
+  # which should be updated.
+  # Return the dublin core of the updated Series.
+  #
+  def update(dublin_core, acl = nil)
+    series_id = dublin_core.dcterms_identifier
+    dc_to_update = read(dublin_core.dcterms_identifier)
+    if dc_to_update.nil?
+      raise(Matterhorn::Matterhorn::Error.new("Series[#{series_id}] was not found on Matterhorn"))
     end
-    acl_model
+    dc = create(dublin_core, acl)
+    if response_code == 204
+      dc = read(series_id)
+    end
+    dc
   end
 
-  
-  # ------------------------------------------------------------------------------------- update ---
 
   def update_acl(series_id, acl)
     acl_updated = false
@@ -153,15 +172,6 @@ class Matterhorn::Endpoint::Series < Matterhorn::Endpoint
 
   # ---------------------------------------------------------------------------- private section ---
   private
-
-  def build_query_str(options)
-    query_str = ''
-    options.each do |key, value|
-      query_str << (query_str.empty? ? '?' : '&')
-      query_str << "#{key.to_s}=#{value.to_s}"
-    end
-    URI.encode(query_str)
-  end
 
 
 end # --------------------------------------------------------- end Matterhorn::Endpoint::Series --
