@@ -82,7 +82,17 @@ class Matterhorn::Endpoint
     @response_code = response.code.to_i
     @response_body = response.body
   end
+
   
+  def build_query_str(options)
+    query_str = ''
+    options.each do |key, value|
+      query_str << (query_str.empty? ? '?' : '&')
+      query_str << "#{key.to_s}=#{value.to_s}"
+    end
+    URI.encode(query_str)
+  end
+
 
   def exception_handler(method, exception, code_error_msg_hash)
     res_code = 0
