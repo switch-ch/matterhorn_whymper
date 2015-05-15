@@ -1,120 +1,137 @@
 require 'nokogiri'
 
 
-# =================================================================================== Matterhorn ===
+# ===================================================================== Matterhorn::MediaPackage ===
 
-module Matterhorn
+class Matterhorn::MediaPackage
+ 
+  # -------------------------------------------------------------------------- const definitions ---
 
-
-  # =================================================================== Matterhorn::MediaPackage ===
-
-  class MediaPackage
-   
-    # ------------------------------------------------------------------------ const definitions ---
-
-    XML_NS_MEDIAPACKAGE = "http://mediapackage.opencastproject.org"
-    
-
-    # --------------------------------------------------------------------------- initialization ---
+  XML_NS_MEDIAPACKAGE = "http://mediapackage.opencastproject.org"
   
-    def initialize(path, xml = nil)
-      @path = path + (path[-1] == '/' ? '' : '/')            # guarantee that path ends with a slash
-      if !xml.nil?
-        @document = Nokogiri::XML(xml)
-      else
-        @document = Nokogiri::XML::Builder.new do |xml|
-          xml.mediapackage('xmlns' => XML_NS_MEDIAPACKAGE) do
-            xml.media
-            xml.metadata
-            xml.attachments
-          end
+
+  # ----------------------------------------------------------------------------- initialization ---
+
+  def initialize(xml = nil, options = {})
+    if xml
+      @document = Nokogiri::XML::Builder.new do |xml|
+        xml.mediapackage('xmlns' => XML_NS_MEDIAPACKAGE) do
+          xml.media
+          xml.metadata
+          xml.attachments
         end
-        .doc
       end
+      .doc
+    else
+      @document = Nokogiri::XML(xml)
     end
+    if (path = options[:path])
+      @path = path + (path[-1] == '/' ? '' : '/')            # guarantee that path ends with a slash
+    else
+      @path = nil
+    end
+  end
+
+
+  # ----------------------------------------------------------------------------------- methodes ---
+
+  def document
+    @document
+  end
 
   
-    # --------------------------------------------------------------------------------- methodes ---
+  def to_xml
+    @document.to_xml
+  end
 
-    #  <attachments>
-    #    <attachment type="switchcastrecorder/metadata">
-    #      <tags/>
-    #      <url>metadata.plist</url>
-    #    </attachment>
-    #  </attachments>
-    #
-    def add_attachment(file, flavor)
-      Nokogiri::XML::Builder.with(@document.at('attachments')) do |xml|
-        xml.attachment(:type => flavor) {
-          xml.tags
-          xml.url file.sub(@path, '')
-        }
-      end
+
+  def inspect
+    to_xml.to_s
+  end
+
+
+  #  <attachments>
+  #    <attachment type="switchcastrecorder/metadata">
+  #      <tags/>
+  #      <url>metadata.plist</url>
+  #    </attachment>
+  #  </attachments>
+  #
+  def add_attachment(file, flavor)
+    Nokogiri::XML::Builder.with(@document.at('attachments')) do |xml|
+      xml.attachment(:type => flavor) {
+        xml.tags
+        xml.url file.sub(@path, '')
+      }
     end
+  end
 
 
-    # <metadata>
-    #   <catalog type="dublincore/episode">
-    #     <mimetype>text/xml</mimetype>
-    #     <tags/>
-    #     <url>dublincore.xml</url>
-    #   </catalog>
-    # </metadata>
-    #
-    def add_catalog(file, flavor, mimetype = 'text/xml')
-      Nokogiri::XML::Builder.with(@document.at('metadata')) do |xml|
-        xml.catalog(:type => flavor) {
-          xml.mimetype mimetype
-          xml.tags
-          xml.url file.sub(@path, '')
-        }
-      end
+  # <metadata>
+  #   <catalog type="dublincore/episode">
+  #     <mimetype>text/xml</mimetype>
+  #     <tags/>
+  #     <url>dublincore.xml</url>
+  #   </catalog>
+  # </metadata>
+  #
+  def add_catalog(file, flavor, mimetype = 'text/xml')
+    Nokogiri::XML::Builder.with(@document.at('metadata')) do |xml|
+      xml.catalog(:type => flavor) {
+        xml.mimetype mimetype
+        xml.tags
+        xml.url file.sub(@path, '')
+      }
     end
+  end
 
 
-    def add_dc_catalog(dublin_core)
-      filename = 'dublincore.xml'
-      flavor   = 'dublincore/episode'
-      dc_doc   = Nokogiri::XML(dublin_core)
-      dc_file  = File.join(@path, filename)
-      File.open(dc_file, 'w') do |file|
-        file.write(dc_doc.to_xml)
-      end
-      add_catalog(dc_file, flavor)
+  def add_dc_catalog(dublin_core)
+    filename = 'dublincore.xml'
+    flavor   = 'dublincore/episode'
+    dc_doc   = Nokogiri::XML(dublin_core)
+    dc_file  = File.join(@path, filename)
+    File.open(dc_file, 'w') do |file|
+      file.write(dc_doc.to_xml)
     end
+    add_catalog(dc_file, flavor)
+  end
 
 
-    # <media>
-    #   <track type="presenter/source+partial">
-    #     <tags/>
-    #     <url>source1/mux_2013_12-17T14_51_29_738.mov</url>
-    #   </track>
-    # </media>
-    #
-    def add_track(file, flavor)
-      Nokogiri::XML::Builder.with(@document.at('media')) do |xml|
-        xml.track(:type => flavor) {
-          xml.tags
-          xml.url file.sub(@path, '')
-        }
-      end
+  # <media>
+  #   <track type="presenter/source+partial">
+  #     <tags/>
+  #     <url>source1/mux_2013_12-17T14_51_29_738.mov</url>
+  #   </track>
+  # </media>
+  #
+  def add_track(file, flavor)
+    Nokogiri::XML::Builder.with(@document.at('media')) do |xml|
+      xml.track(:type => flavor) {
+        xml.tags
+        xml.url file.sub(@path, '')
+      }
     end
+  end
 
 
-    def save(path = @path)
-      manifest_file = File.join(path, 'manifest.xml')
-      File.open(manifest_file, 'w') do |file|
-        file.write(@document.to_xml)
-      end
+  # Returns the id attribute of mediapackage element.
+  # <mediapackage xmlns="http://mediapackage.opencastproject.org" id="1" duration="2704016" start="2014-04-23T12:35:00Z">
+  #
+  def identifier
+    @document.xpath('/xmlns:mediapackage/@id', {'xmlns' => XML_NS_MEDIAPACKAGE}).first.value
+  end
+
+
+  def save(path = @path)
+    unless path
+      raise(Matterhorn::Error, "No path was set, where manifest file should be saved!")
     end
-
-
-    def to_xml
-      @document.to_xml
+    manifest_file = File.join(path, 'manifest.xml')
+    File.open(manifest_file, 'w') do |file|
+      file.write(to_xml)
     end
+  end
 
 
-  end # ----------------------------------------------------------- end Matterhorn::MediaPackage ---
-
-
-end # --------------------------------------------------------------------------- end Matterhorn ---
+end # ------------------------------------------------------------- end Matterhorn::MediaPackage ---
