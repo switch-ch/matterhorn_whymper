@@ -1,6 +1,15 @@
+# Define Matterhorn Namespace
+#
+module Matterhorn
+end
+
+
 require 'matterhorn_whymper/version'
+require 'matterhorn/acl'
+require 'matterhorn/dublin_core'
 require 'matterhorn/endpoint'
 require 'matterhorn/endpoint/ingest'
+require 'matterhorn/endpoint/series'
 require 'matterhorn/endpoint/workflow'
 require 'matterhorn/error'
 require 'matterhorn/http_client'
@@ -49,7 +58,7 @@ module MatterhornWhymper
     # ------------------------------------------------------------------------------- attributes --- 
 
     attr_accessor :system_account_user, :system_account_password, :system_domain, :system_protocol,
-                  :http_timeout
+                  :http_timeout, :ssl_dont_verify_cert
 
 
     # --------------------------------------------------------------------------------- methodes ---
