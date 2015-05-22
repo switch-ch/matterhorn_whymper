@@ -14,6 +14,8 @@ class Matterhorn::MediaPackage
 
   def initialize(xml = nil, options = {})
     if xml
+      @document = Nokogiri::XML(xml)
+    else
       @document = Nokogiri::XML::Builder.new do |xml|
         xml.mediapackage('xmlns' => XML_NS_MEDIAPACKAGE) do
           xml.media
@@ -22,8 +24,6 @@ class Matterhorn::MediaPackage
         end
       end
       .doc
-    else
-      @document = Nokogiri::XML(xml)
     end
     if (path = options[:path])
       @path = path + (path[-1] == '/' ? '' : '/')            # guarantee that path ends with a slash
