@@ -17,7 +17,7 @@ class Matterhorn::Endpoint::Series < Matterhorn::Endpoint
   def create(dublin_core, acl = nil)
     dc = nil
     begin
-      split_response http_client.post(
+      split_response http_endpoint_client.post(
         "series",
         { 'series' => dublin_core.to_xml, 'acl' => acl ? acl.to_xml : '' }
       )
@@ -39,7 +39,7 @@ class Matterhorn::Endpoint::Series < Matterhorn::Endpoint
   def read(series_id)
     dc_model = nil
     begin
-      split_response http_client.get(
+      split_response http_endpoint_client.get(
         "series/#{series_id}.xml"
       )
       dc_model = Matterhorn::DublinCore.new(response_body)
@@ -59,7 +59,7 @@ class Matterhorn::Endpoint::Series < Matterhorn::Endpoint
   def read_acl(series_id)
     acl_model = nil
     begin
-      split_response http_client.get(
+      split_response http_endpoint_client.get(
         "series/#{series_id}/acl.xml"
       )
       acl_model = Matterhorn::Acl.new(response_body)
@@ -76,7 +76,7 @@ class Matterhorn::Endpoint::Series < Matterhorn::Endpoint
   def find(options)
     dc_models = []
     begin
-      split_response http_client.get(
+      split_response http_endpoint_client.get(
         "series/series.xml#{build_query_str(options)}"
       )
       Nokogiri::XML(response_body).
@@ -97,7 +97,7 @@ class Matterhorn::Endpoint::Series < Matterhorn::Endpoint
   def count
     count = 0
     begin
-      split_response http_client.get(
+      split_response http_endpoint_client.get(
         "series/count"
       )
       count = response_body.to_i
@@ -132,7 +132,7 @@ class Matterhorn::Endpoint::Series < Matterhorn::Endpoint
   def update_acl(series_id, acl)
     acl_updated = false
     begin
-      split_response http_client.post(
+      split_response http_endpoint_client.post(
         "series/#{series_id}/accesscontrol", { 'acl' => acl.to_xml }
       )
       acl_updated = true
@@ -154,7 +154,7 @@ class Matterhorn::Endpoint::Series < Matterhorn::Endpoint
   def delete(series_id)
     deleted = false
     begin
-      split_response http_client.delete(
+      split_response http_endpoint_client.delete(
         "series/#{series_id}"
       )
       deleted = true

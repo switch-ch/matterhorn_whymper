@@ -46,7 +46,6 @@ module MatterhornWhymper
       require 'logger'
       self.logger = Logger.new(STDOUT)
     end
-    self.configuration.http_timeout = nil
     yield(configuration)    if block_given?
   end
  
@@ -56,16 +55,61 @@ module MatterhornWhymper
 
   class Configuration
 
-    # ------------------------------------------------------------------------------- attributes --- 
-
-    attr_accessor :system_account_user, :system_account_password, :system_domain, :system_protocol,
-                  :http_timeout, :ssl_dont_verify_cert
-
-
     # --------------------------------------------------------------------------------- methodes ---
 
-    def uri
-      "#{system_protocol}://#{system_account_user}:#{system_account_password}@#{system_domain}"
+    def initialize
+      @mhw_config = {}
+    end
+
+    def add_matterhorn_instance(name = 'default')
+      @mhw_config[name.to_sym] = {}
+    end
+
+    def add_endpoint(options, mh_i = 'default')
+      @mhw_config[mh_i.to_sym][:endpoint] = validate_options(options)
+    end
+
+    def add_api(options, mh_i = 'default')
+      @mhw_config[mh_i.to_sym][:api] = validate_options(options)
+    end
+
+    def set_default_matterhorn_instance(mh_i)
+      unless @mhw_config[mh_i.to_sym].nil?
+        @mhw_config[:default] = @mhw_config[mh_i.to_sym]
+      end
+    end
+    
+
+    def endpoint(mh_i = :default)
+      @mhw_config[mh_i][:endpoint]
+    end
+
+    def api(mh_i = :default)
+      @mhw_config[mh_i][:api]
+    end
+
+    
+    # -------------------------------------------------------------------------- private section ---
+    private
+
+    def validate_options(opt)
+      valid_keys = [:protocol, :domain, :user, :password, :auth_mode,
+                    :http_timeout, :ssl_dont_verify_cert]
+      options = {
+        :protocol  => 'http',
+        :domain    => 'example.org',
+        :user      => 'admin',
+        :password  => '',
+        :auth_mode => 'basic',
+        :http_timeout         => nil,
+        :ssl_dont_verify_cert => false
+      }
+      opt.each do |key, value|
+        if valid_keys.include? key.to_sym
+          options[key.to_sym] = value
+        end
+      end
+      options
     end
 
 

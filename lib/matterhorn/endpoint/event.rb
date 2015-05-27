@@ -17,7 +17,7 @@ class Matterhorn::Endpoint::Event < Matterhorn::Endpoint
   def read_media_package(media_package_id)
     media_package_xml = nil
     begin
-      split_response http_client.get(
+      split_response http_endpoint_client.get(
         "archive/archive/mediapackage/#{media_package_id}"
       )
       media_package_xml = response_body
@@ -32,6 +32,12 @@ class Matterhorn::Endpoint::Event < Matterhorn::Endpoint
 
 
   # ------------------------------------------------------------------------------------- update ---
+
+  def update(media_package_id, dublin_core)
+    split_response http_api_client.get(
+      "api/events/#{media_package_id}"
+    )
+  end
 
 
   # ------------------------------------------------------------------------------------- delete ---
