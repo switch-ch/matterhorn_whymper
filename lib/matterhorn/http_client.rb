@@ -2,6 +2,7 @@ require 'net/http/post/multipart'
 require 'net/http/digest_auth'
 require 'mime/types'
 
+
 # =================================================================================== Matterhorn ===
 
 module Matterhorn
@@ -42,7 +43,14 @@ module Matterhorn
       execute_request(request)
     end
   
+
+    def put(url, params = {})
+      request = Net::HTTP::Put.new(@uri.request_uri + url)
+      request.set_form_data(params)
+      execute_request(request)
+    end
   
+
     def delete(url)
       request = Net::HTTP::Delete.new(@uri.request_uri + url)
       execute_request(request)

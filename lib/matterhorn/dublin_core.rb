@@ -72,6 +72,11 @@ class Matterhorn::DublinCore
   end
 
   
+  def each_dcterms_element(&block)
+    each_element('dcterms', &block)
+  end
+
+
   def save(file)
     File.open(file, 'w') do |file|
       file.write(@document.to_xml)
@@ -166,6 +171,13 @@ class Matterhorn::DublinCore
     end
     elem.content
   end
+ 
 
+  def each_element(ns, &block) 
+    @document.xpath("/xmlns:dublincore/#{ns}:*").each do |elem|
+      yield elem.name, elem.content
+    end
+  end
   
+
 end # --------------------------------------------------------------- end Matterhorn::DublinCore ---
