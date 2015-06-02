@@ -47,7 +47,7 @@ class Matterhorn::Endpoint
       MatterhornWhymper.configuration.endpoint(mh_instance)[:auth_mode],
       MatterhornWhymper.configuration.endpoint(mh_instance)[:http_timeout],
       MatterhornWhymper.configuration.endpoint(mh_instance)[:ssl_dont_verify_cert],
-      MatterhornWhymper.configuration.endpoint(mh_instance)[:multi_tenand] 
+      MatterhornWhymper.configuration.endpoint(mh_instance)[:multi_tenant] 
     )
     @http_api_client = if !MatterhornWhymper.configuration.api(mh_instance).nil?
       Matterhorn::HttpClient.new(
@@ -59,7 +59,7 @@ class Matterhorn::Endpoint
         MatterhornWhymper.configuration.api(mh_instance)[:auth_mode],
         MatterhornWhymper.configuration.api(mh_instance)[:http_timeout],
         MatterhornWhymper.configuration.api(mh_instance)[:ssl_dont_verify_cert],
-        MatterhornWhymper.configuration.api(mh_instance)[:multi_tenand] 
+        MatterhornWhymper.configuration.api(mh_instance)[:multi_tenant] 
       )
     else
       nil
