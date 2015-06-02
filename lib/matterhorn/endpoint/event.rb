@@ -37,9 +37,11 @@ class Matterhorn::Endpoint::Event < Matterhorn::Endpoint
     dublin_core = nil
     begin
       mp = read_media_package(media_package_id)
-      dc_uri = URI.parse(mp.dc_catalog_url)
-      split_response http_endpoint_client.get(dc_uri.request_uri)
-      dublin_core = Matterhorn::DublinCore.new(response_body)
+      if !mp.nil?
+        dc_uri = URI.parse(mp.dc_catalog_url)
+        split_response http_endpoint_client.get(dc_uri.request_uri)
+        dublin_core = Matterhorn::DublinCore.new(response_body)
+      end
     rescue => ex
       exception_handler('read_dublin_core', ex, {
           404 => "The media package of event[#{media_package_id}] could not be found."
@@ -87,6 +89,16 @@ class Matterhorn::Endpoint::Event < Matterhorn::Endpoint
 
 
   # ------------------------------------------------------------------------------------- delete ---
+
+  def delete(media_package_id)
+    begin
+      split_response http_endpoint_client.delete(
+        "archive/delete/#{media_package_id}"
+      )
+    rescue => ex
+      exception_handler('delete', ex, {})
+    end
+  end
 
 
   # ---------------------------------------------------------------------------- private section ---

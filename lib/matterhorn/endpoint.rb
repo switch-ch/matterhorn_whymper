@@ -9,7 +9,7 @@ class Matterhorn::Endpoint
 
   # ----------------------------------------------------------------------------- initialization ---
 
-  def self.create(endpoint, mh_instance = :default)
+  def self.create(endpoint, org_domain = '', mh_instance = :default)
     if endpoint.respond_to? 'to_s'
       endpoint = endpoint.to_s.capitalize
     else
@@ -17,7 +17,7 @@ class Matterhorn::Endpoint
                                "#{endpoint.inspect} does not respond to 'to_s'")
     end
     endpoint = Object.const_get('Matterhorn').const_get('Endpoint').
-                      const_get(endpoint).new(mh_instance)
+                      const_get(endpoint).new(org_domain, mh_instance)
     if endpoint.nil? || !endpoint.kind_of?(Matterhorn::Endpoint)
       raise(Matterhorn::Error, "Matterhorn::Endpoint::open | " +
                                "#{endpoint ? endpoint.class.name : 'nil'} is not a sub class " +
@@ -27,7 +27,7 @@ class Matterhorn::Endpoint
   end
 
 
-  def self.open(endpoint, mh_instance = :default)
+  def self.open(endpoint, org_domain = '', mh_instance = :default)
     endpoint = create(endpoint, mh_instance)
     begin
       yield endpoint
@@ -37,25 +37,29 @@ class Matterhorn::Endpoint
   end  
 
 
-  def initialize(mh_instance = :default)
+  def initialize(org_domain = '', mh_instance = :default)
     @http_endpoint_client = Matterhorn::HttpClient.new(
       MatterhornWhymper.configuration.endpoint(mh_instance)[:protocol],
       MatterhornWhymper.configuration.endpoint(mh_instance)[:domain],
+      org_domain,
       MatterhornWhymper.configuration.endpoint(mh_instance)[:user],
       MatterhornWhymper.configuration.endpoint(mh_instance)[:password],
       MatterhornWhymper.configuration.endpoint(mh_instance)[:auth_mode],
       MatterhornWhymper.configuration.endpoint(mh_instance)[:http_timeout],
-      MatterhornWhymper.configuration.endpoint(mh_instance)[:ssl_dont_verify_cert]
+      MatterhornWhymper.configuration.endpoint(mh_instance)[:ssl_dont_verify_cert],
+      MatterhornWhymper.configuration.endpoint(mh_instance)[:multi_tenand] 
     )
     @http_api_client = if !MatterhornWhymper.configuration.api(mh_instance).nil?
       Matterhorn::HttpClient.new(
         MatterhornWhymper.configuration.api(mh_instance)[:protocol],
         MatterhornWhymper.configuration.api(mh_instance)[:domain],
+        org_domain,
         MatterhornWhymper.configuration.api(mh_instance)[:user],
         MatterhornWhymper.configuration.api(mh_instance)[:password],
         MatterhornWhymper.configuration.api(mh_instance)[:auth_mode],
         MatterhornWhymper.configuration.api(mh_instance)[:http_timeout],
-        MatterhornWhymper.configuration.api(mh_instance)[:ssl_dont_verify_cert]
+        MatterhornWhymper.configuration.api(mh_instance)[:ssl_dont_verify_cert],
+        MatterhornWhymper.configuration.api(mh_instance)[:multi_tenand] 
       )
     else
       nil
