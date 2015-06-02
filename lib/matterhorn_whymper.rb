@@ -94,7 +94,7 @@ module MatterhornWhymper
 
     def validate_options(opt)
       valid_keys = [:protocol, :domain, :user, :password, :auth_mode,
-                    :http_timeout, :ssl_dont_verify_cert, :multi_tenand]
+                    :http_timeout, :ssl_dont_verify_cert, :multi_tenant]
       options = {
         :protocol  => 'http',
         :domain    => 'example.org',
@@ -103,7 +103,7 @@ module MatterhornWhymper
         :auth_mode => 'basic',
         :http_timeout         => nil,
         :ssl_dont_verify_cert => false,
-        :multi_tenand => true
+        :multi_tenant => true
       }
       opt.each do |key, value|
         if valid_keys.include? key.to_sym
