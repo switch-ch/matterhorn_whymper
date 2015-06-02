@@ -8,7 +8,7 @@ class Matterhorn::Endpoint::Workflow < Matterhorn::Endpoint
   def instance(wi_id)
     wi = nil
     begin
-      split_response http_client.get(
+      split_response http_endpoint_client.get(
         "workflow/instance/#{wi_id}.xml"
       )
       wi = response_body
@@ -25,7 +25,7 @@ class Matterhorn::Endpoint::Workflow < Matterhorn::Endpoint
   def remove(wi_id)
     wi_removed = false
     begin
-      split_response http_client.delete(
+      split_response http_endpoint_client.delete(
         "workflow/remove/#{wi_id}"
       )
       wi_removed = true
@@ -42,7 +42,7 @@ class Matterhorn::Endpoint::Workflow < Matterhorn::Endpoint
   def resume(wi_id)
     wi = nil
     begin
-      split_response http_client.post(
+      split_response http_endpoint_client.post(
         "workflow/resume",
         { 'id' => wi_id }
       )
@@ -61,7 +61,7 @@ class Matterhorn::Endpoint::Workflow < Matterhorn::Endpoint
   def stop(wi_id)
     wi = nil
     begin
-      split_response http_client.post(
+      split_response http_endpoint_client.post(
         "workflow/stop",
         { 'id' => wi_id }
       )

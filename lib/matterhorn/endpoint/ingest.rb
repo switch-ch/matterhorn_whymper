@@ -9,7 +9,7 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
     unless @media_pkg_xml_remote then raise(Matterhorn::Error, "No media package is available!"); end
     @media_pkg_local.add_attachment(file, flavor)    if @media_pkg_local
     begin
-      spit_response http_client.post(
+      spit_response http_endpoint_client.post(
         "ingest/addAttachment",
         { 'flavor' => flavor,
           'mediaPackage' => @media_pkg_xml_remote,
@@ -32,7 +32,7 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
     unless @media_pkg_xml_remote then raise(Matterhorn::Error, "No media package is available!"); end
     @media_pkg_local.add_catalog(file, flavor)    if @media_pkg_local
     begin
-      split_response http_client.post(
+      split_response http_endpoint_client.post(
         "ingest/addCatalog",
         { 'flavor' => flavor,
           'mediaPackage' => @media_pkg_xml_remote,
@@ -55,7 +55,7 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
     unless @media_pkg_xml_remote then raise(Matterhorn::Error, "No media package is available!"); end
     @media_pkg_local.add_dc_catalog(dublin_core)    if @media_pkg_local
     begin
-      split_response http_client.post(
+      split_response http_endpoint_client.post(
         "ingest/addDCCatalog",
         { 'flavor' => 'dublincore/episode',
           'mediaPackage' => @media_pkg_xml_remote,
@@ -80,7 +80,7 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
     @media_pkg_local.add_track(file_or_url, flavor) if @media_pkg_local
     begin
       if HTTP_PROTOCOL_RE =~ file_or_url
-        split_response http_client.post(
+        split_response http_endpoint_client.post(
           "ingest/addTrack",
           { 'flavor' => flavor,
             'mediaPackage' => @media_pkg_xml_remote,
@@ -88,7 +88,7 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
           }
         )
       else
-        split_response http_client.post(
+        split_response http_endpoint_client.post(
           "ingest/addTrack",
           { 'flavor' => flavor,
             'mediaPackage' => @media_pkg_xml_remote,
@@ -120,7 +120,7 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
                          nil
                        end
     begin
-      split_response http_client.get(
+      split_response http_endpoint_client.get(
         "ingest/createMediaPackage"
       )
       @media_pkg_xml_remote = response_body
@@ -137,7 +137,7 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
     @media_pkg_local.save    if @media_pkg_local
     options['mediaPackage'] = @media_pkg_xml_remote
     begin
-      split_response http_client.post(
+      split_response http_endpoint_client.post(
         "ingest/ingest/#{wdID}",
         options
       )
