@@ -98,6 +98,17 @@ class Matterhorn::MediaPackage
   end
 
 
+  def dc_catalog_url
+    url_elem = @document.at_xpath('//xmlns:catalog[@type="dublincore/episode"]/xmlns:url',
+                                  {'xmlns' => XML_NS_MEDIAPACKAGE})
+    if url_elem
+      url_elem.content
+    else
+      nil
+    end
+  end
+
+
   # <media>
   #   <track type="presenter/source+partial">
   #     <tags/>
@@ -111,6 +122,17 @@ class Matterhorn::MediaPackage
         xml.tags
         xml.url file.sub(@path, '')
       }
+    end
+  end
+
+
+  def track_url(flavor)
+    url_elem = @document.at_xpath("//xmlns:track[contains(@type, \"#{flavor}\")]/xmlns:url",
+                                  {'xmlns' => Matterhorn::MediaPackage::XML_NS_MEDIAPACKAGE})
+    if url_elem
+      url_elem.content
+    else
+      nil
     end
   end
 

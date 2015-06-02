@@ -2,6 +2,7 @@ require 'net/http/post/multipart'
 require 'net/http/digest_auth'
 require 'mime/types'
 
+
 # =================================================================================== Matterhorn ===
 
 module Matterhorn
@@ -11,27 +12,26 @@ module Matterhorn
 
   class HttpClient
     
-    # ------------------------------------------------------------------------------- attributes ---
-  
-    attr_reader :base_uri, :host, :port, :ssl, :ssl_dont_verify_cert, :timeout
-  
-
     # --------------------------------------------------------------------------- initialization ---
   
-    def initialize(base_uri, http_timeout = nil, ssl_dont_verify_cert = false)
-      @base_uri  = URI.parse(base_uri)
-      @host      = @base_uri.host
-      @port      = @base_uri.port
-      @ssl       = @port == 443 ? true : false
-      @timeout   = http_timeout
+    def initialize(protocol, domain, org_domain, user, password, auth_mode,
+                   http_timeout = nil, ssl_dont_verify_cert = false, multi_tenand = true)
+      @sub_domain   = org_domain.split('.').first
+      @uri          = URI.parse("#{protocol}://#{domain}")
+      @uri.user     = user
+      @uri.password = password 
+      @auth_mode    = auth_mode
+      @ssl          = @uri.port == 443 ? true : false
+      @timeout      = http_timeout
       @ssl_dont_verify_cert = ssl_dont_verify_cert
+      @multi_tenand = multi_tenand
     end  
   
 
     # ---------------------------------------------------------------------------- http methodes ---
   
     def get(url)
-      request = Net::HTTP::Get.new(base_uri.request_uri + url)
+      request = Net::HTTP::Get.new(assemble_url(url))
       execute_request(request)
     end
   
@@ -45,9 +45,16 @@ module Matterhorn
       execute_request(request)
     end
   
+
+    def put(url, params = {})
+      request = Net::HTTP::Put.new(assemble_url(url))
+      request.set_form_data(params)
+      execute_request(request)
+    end
   
+
     def delete(url)
-      request = Net::HTTP::Delete.new(base_uri.request_uri + url)
+      request = Net::HTTP::Delete.new(assemble_url(url))
       execute_request(request)
     end
   
@@ -62,19 +69,28 @@ module Matterhorn
   
     def http_socket
       return @http_socket   if !@http_socket.nil? && @http_socket.started?
-      @http_socket = Net::HTTP.new(host, port)
-      @http_socket.use_ssl = ssl
-      @http_socket.verify_mode = OpenSSL::SSL::VERIFY_NONE    if ssl && ssl_dont_verify_cert
-      if !timeout.nil?
-        @http_socket.open_timeout = timeout
-        @http_socket.read_timeout = timeout
+      @http_socket = Net::HTTP.new(@uri.host, @uri.port)
+      @http_socket.use_ssl = @ssl
+      @http_socket.verify_mode = OpenSSL::SSL::VERIFY_NONE    if @ssl && @ssl_dont_verify_cert
+      if !@timeout.nil?
+        @http_socket.open_timeout = @timeout
+        @http_socket.read_timeout = @timeout
       end
       @http_socket.start
     end
   
+   
+    def assemble_url(url)
+      if @multi_tenand && !@sub_domain.blank?
+        @uri.request_uri + "#{@sub_domain}/" + url
+      else
+        @uri.request_uri + url
+      end
+    end
   
+
     def singlepart_post(url, params)
-      request = Net::HTTP::Post.new(base_uri.request_uri + url)
+      request = Net::HTTP::Post.new(assemble_url(url))
       request.set_form_data(params)
       request
     end
@@ -102,18 +118,23 @@ module Matterhorn
         mime_type = MIME::Types.type_for(File.basename(file.path)).first
       end
       params['BODY'] = UploadIO.new(file, mime_type, filename)
-      Net::HTTP::Post::Multipart.new(base_uri.request_uri + url, params)
+      Net::HTTP::Post::Multipart.new(assemble_url(url), params)
     end
   
   
     def execute_request(request)
-      head = Net::HTTP::Head.new(request.path)
-      head['X-REQUESTED-AUTH'] = 'Digest'
-      head['X-Opencast-Matterhorn-Authorization'] = 'true'
-      digest_result = http_socket.request(head)
-      digest_auth = Net::HTTP::DigestAuth.new
-      auth = digest_auth.auth_header(base_uri, digest_result['www-authenticate'], request.method)
-      request.add_field('Authorization', auth)
+      case @auth_mode
+      when 'basic'
+        request.basic_auth(@uri.user, @uri.password)
+      when 'digest'
+        head = Net::HTTP::Head.new(@uri.request_uri + request.path)
+        head['X-REQUESTED-AUTH'] = 'Digest'
+        head['X-Opencast-Matterhorn-Authorization'] = 'true'
+        digest_result = http_socket.request(head)
+        digest_auth = Net::HTTP::DigestAuth.new
+        auth = digest_auth.auth_header(@uri, digest_result['www-authenticate'], request.method)
+        request.add_field('Authorization', auth)
+      end
       response = http_socket.request(request)
       case response.code.to_i
       when 200..299
