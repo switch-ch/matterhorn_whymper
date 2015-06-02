@@ -15,7 +15,7 @@ module Matterhorn
     # --------------------------------------------------------------------------- initialization ---
   
     def initialize(protocol, domain, org_domain, user, password, auth_mode,
-                   http_timeout = nil, ssl_dont_verify_cert = false, multi_tenand = true)
+                   http_timeout = nil, ssl_dont_verify_cert = false, multi_tenant = true)
       @sub_domain   = org_domain.split('.').first
       @uri          = URI.parse("#{protocol}://#{domain}")
       @uri.user     = user
@@ -24,7 +24,7 @@ module Matterhorn
       @ssl          = @uri.port == 443 ? true : false
       @timeout      = http_timeout
       @ssl_dont_verify_cert = ssl_dont_verify_cert
-      @multi_tenand = multi_tenand
+      @multi_tenant = multi_tenant
     end  
   
 
@@ -81,7 +81,7 @@ module Matterhorn
   
    
     def assemble_url(url)
-      if @multi_tenand && !@sub_domain.blank?
+      if @multi_tenant && !@sub_domain.blank?
         @uri.request_uri + "#{@sub_domain}/" + url
       else
         @uri.request_uri + url
