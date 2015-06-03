@@ -1,5 +1,8 @@
-matterhorn:
-  system_account_user:     inser_system_user_name_here
-  system_account_password: insert_system_user_password_here
-  system_domain:           mh-admin.localdomain
-  system_protocol:         http
+test:
+  protocol:  http
+  domain: admin.example.com
+  user: inser_system_user_name_here
+  password: insert_system_user_password_here
+  auth_mode: digest
+  ssl_dont_verify_cert: false
+  multi_tenant: false
