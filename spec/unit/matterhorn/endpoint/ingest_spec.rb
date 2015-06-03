@@ -27,4 +27,12 @@ describe Matterhorn::Endpoint::Ingest do
     response_body = @ingest.addTrack('http://example.com/path/to/file', 'source/raw')
     expect(response_body).to start_with('<?xml')
   end
+
+  describe "initialization" do
+    it "creates an endpoint instance with open" do
+      Matterhorn::Endpoint.open(:ingest) do |client|
+        expect(client).to be_kind_of(Matterhorn::Endpoint::Ingest)
+      end
+    end
+  end
 end
