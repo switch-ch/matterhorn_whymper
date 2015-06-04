@@ -28,13 +28,13 @@ class Matterhorn::Endpoint
 
 
   def self.open(endpoint, org_domain = '', mh_instance = :default)
-    endpoint = create(endpoint, mh_instance)
+    endpoint = create(endpoint, org_domain, mh_instance)
     begin
       yield endpoint
     ensure
       endpoint.close
     end
-  end  
+  end
 
 
   def initialize(org_domain = '', mh_instance = :default)
@@ -88,8 +88,8 @@ class Matterhorn::Endpoint
 
 
   def close
-    http_endpoint_client.close
-    http_api_client.close
+    http_endpoint_client.close if http_endpoint_client
+    http_api_client.close if http_api_client
   end
 
 
