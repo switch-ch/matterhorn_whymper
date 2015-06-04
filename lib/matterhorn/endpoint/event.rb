@@ -2,9 +2,10 @@ require 'json'
 
 # ================================================================== Matterhorn::Endpoint::Event ===
 
-# This endpoint is not a pure wrapper of the admin endpoint.
+# This endpoint is not a pure wrapper of the archive endpoint.
 # Create should be done over ingest endpoint
 # Update is implemented over the external API
+# In the code the evnent_id is used. This id is equal to media_package_id.
 #
 class Matterhorn::Endpoint::Event < Matterhorn::Endpoint
 
@@ -16,16 +17,16 @@ class Matterhorn::Endpoint::Event < Matterhorn::Endpoint
 
   # --------------------------------------------------------------------------------------- read ---
 
-  def read_media_package(media_package_id)
+  def read_media_package(event_id)
     media_package = nil
     begin
       split_response http_endpoint_client.get(
-        "archive/archive/mediapackage/#{media_package_id}"
+        "archive/archive/mediapackage/#{event_id}"
       )
       media_package = Matterhorn::MediaPackage.new(response_body)
     rescue => ex
       exception_handler('read_media_package', ex, {
-          404 => "The media package of event[#{media_package_id}] could not be found."
+          404 => "The media package of event[#{event_id}] could not be found."
         }
       )
     end
@@ -33,10 +34,10 @@ class Matterhorn::Endpoint::Event < Matterhorn::Endpoint
   end
 
 
-  def read_dublin_core(media_package_id)
+  def read_dublin_core(event_id)
     dublin_core = nil
     begin
-      mp = read_media_package(media_package_id)
+      mp = read_media_package(event_id)
       if !mp.nil?
         dc_uri = URI.parse(mp.dc_catalog_url)
         split_response http_endpoint_client.get(dc_uri.request_uri)
@@ -44,7 +45,7 @@ class Matterhorn::Endpoint::Event < Matterhorn::Endpoint
       end
     rescue => ex
       exception_handler('read_dublin_core', ex, {
-          404 => "The media package of event[#{media_package_id}] could not be found."
+          404 => "The media package of event[#{event_id}] could not be found."
         }
       )
     end
@@ -55,12 +56,11 @@ class Matterhorn::Endpoint::Event < Matterhorn::Endpoint
   # ------------------------------------------------------------------------------------- update ---
 
   def changeable_element?(element_name)
-    ['title', 'subject', 'description', 'language', 'license',
-     'contributer', 'source'].include?(element_name)
+    ['title', 'subject', 'description', 'language', 'license', 'source'].include?(element_name)
   end 
 
 
-  def update_dublin_core(media_package_id, dublin_core)
+  def update_dublin_core(event_id, dublin_core)
     updated = false
     begin
       dc_field_arr = []
@@ -73,14 +73,14 @@ class Matterhorn::Endpoint::Event < Matterhorn::Endpoint
         end
       end
       split_response http_api_client.put(
-        "api/events/#{media_package_id}/metadata?type=dublincore/episode",
+        "api/events/#{event_id}/metadata?type=dublincore/episode",
         { 'metadata' => dc_field_arr.to_json }
       )
       updated = true
     rescue => ex
       exception_handler('update_dublin_core', ex, {
           400 => "The request is invaldi or inconsistent.",
-          404 => "The media package of event[#{media_package_id}] could not be found."
+          404 => "The media package of event[#{event_id}] could not be found."
         }
       )
     end
@@ -90,10 +90,10 @@ class Matterhorn::Endpoint::Event < Matterhorn::Endpoint
 
   # ------------------------------------------------------------------------------------- delete ---
 
-  def delete(media_package_id)
+  def delete(event_id)
     begin
       split_response http_endpoint_client.delete(
-        "archive/delete/#{media_package_id}"
+        "archive/delete/#{event_id}"
       )
     rescue => ex
       exception_handler('delete', ex, {})
