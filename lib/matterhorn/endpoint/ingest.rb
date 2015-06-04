@@ -153,7 +153,7 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
   end
 
 
-  def media_package_idenfifier
+  def media_package_identifier
     return nil unless @media_pkg_xml_remote
     Matterhorn::MediaPackage.new(@media_pkg_xml_remote).identifier
   end
