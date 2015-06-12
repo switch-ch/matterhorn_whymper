@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<dublincore xmlns="http://www.opencastproject.org/xsd/1.0/dublincore/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:oc="http://www.opencastproject.org/matterhorn/" xsi:schemaLocation="http://www.opencastproject.org http://www.opencastproject.org/schema.xsd">
+  <dcterms:title>Space is Awesome</dcterms:title>
+  <dcterms:description>The Great Space Race was hotly anticipated as the follow-up to Legend's popular and influential graphic adventure Valhalla. Pre-release publicity boasted that the game contained "technical effects never before seen in home computer software", with "true solid 3D graphics".[2] The game was actually coded largely in BASIC.[3]&#xD;
+&#xD;
+After its release, the game was described by Sinclair User as "one of the most vacuous products we have seen."[4] The graphics also did not impress, as Big K magazine panned "Graphics are great - by 1982 standards. In 1985 they look amateurish and unprofessional".[5] Despite the heavy criticism at launch, the game has gained a cult status through the use of emulators in recent years.</dcterms:description>
+  <dcterms:created>2015-05-11</dcterms:created>
+  <dcterms:source>SWITCHtube_Channel_1</dcterms:source>
+  <dcterms:contributor>Ste&#x301;phane Kielholz</dcterms:contributor>
+  <dcterms:subject>Arts &amp; Culture</dcterms:subject>
+  <dcterms:publisher>Universit&#xE4;t Bern</dcterms:publisher>
+</dublincore>
