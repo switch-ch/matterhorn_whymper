@@ -81,7 +81,7 @@ module Matterhorn
   
    
     def assemble_url(url)
-      if @multi_tenant && !@sub_domain.blank?
+      if @multi_tenant && (@sub_domain.to_s.strip != '')
         @uri.request_uri + "#{@sub_domain}/" + url
       else
         @uri.request_uri + url
