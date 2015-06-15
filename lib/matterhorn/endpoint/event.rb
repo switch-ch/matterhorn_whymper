@@ -65,7 +65,7 @@ class Matterhorn::Endpoint::Event < Matterhorn::Endpoint
     begin
       dc_field_arr = []
       dublin_core.each_dcterms_element do |name, content|
-        if changeable_element?(name) && !content.blank?
+        if changeable_element?(name) && (content.to_s.strip != '')
           dc_field_arr << {
             'id'    => name,
             'value' => content
