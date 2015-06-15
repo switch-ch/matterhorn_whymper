@@ -142,16 +142,16 @@ class Matterhorn::DublinCore
   def get_value(ns, key)
     elem = @document.xpath("/xmlns:dublincore/#{ns}:#{key}").first
     return nil    if elem.nil?
-    elem.content
+    elem.content.to_s.strip
   end
 
 
   def set_value(ns, key, value)
     if !(elem = @document.at_xpath("/xmlns:dublincore/#{ns}:#{key}")).nil?
-      elem.content = value
+      elem.content = value.to_s.strip
     else
       elem = Nokogiri::XML::Element.new(key, @document)
-      elem.content = value
+      elem.content = value.to_s.strip
       elem.namespace = get_ns(ns)    unless ns.nil?
       @document.root << elem
     end
@@ -162,7 +162,7 @@ class Matterhorn::DublinCore
   def add_value(ns, key, value)
     sibling = @document.xpath("/xmlns:dublincore/#{ns}:#{key}").last
     elem = Nokogiri::XML::Element.new(key, @document)
-    elem.content = value
+    elem.content = value.to_s.strip
     elem.namespace = get_ns(ns)    unless ns.nil?
     if !sibling.nil?
       sibling.after(elem)
@@ -175,7 +175,7 @@ class Matterhorn::DublinCore
 
   def each_element(ns, &block) 
     @document.xpath("/xmlns:dublincore/#{ns}:*").each do |elem|
-      yield elem.name, elem.content
+      yield elem.name, elem.content.to_s.strip
     end
   end
   
