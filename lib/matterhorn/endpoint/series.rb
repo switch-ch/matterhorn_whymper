@@ -119,7 +119,7 @@ class Matterhorn::Endpoint::Series < Matterhorn::Endpoint
     series_id = dublin_core.dcterms_identifier
     dc_to_update = read(dublin_core.dcterms_identifier)
     if dc_to_update.nil?
-      raise(Matterhorn::Matterhorn::Error.new("Series[#{series_id}] was not found on Matterhorn"))
+      raise(Matterhorn::Error.new("Series[#{series_id}] was not found on Matterhorn"))
     end
     dc = create(dublin_core, acl)
     if response_code == 204
