@@ -10,10 +10,22 @@ require 'fileutils'
 
 Dir.glob(File.expand_path('../support/**/*.rb', __FILE__)).each { |lib| require lib }
 
-test_configuration = YAML::load_file(File.expand_path('../matterhorn.yml', __FILE__))
-MatterhornWhymper.configure do |config|
-  config.add_matterhorn_instance
-  config.add_endpoint(test_configuration['test'])
+
+MatterhornWhymper.configure do |mhw_config|
+  mhw_yml = YAML::load_file(File.expand_path('../matterhorn.yml', __FILE__))['test']
+  mhw_yml.each do |mh_name, mh_config|
+    if mh_name != 'default'
+      mhw_config.add_matterhorn_instance(mh_name)
+      if !mh_config['endpoint'].nil?
+        mhw_config.add_endpoint(mh_config['endpoint'], mh_name)
+      end
+      if !mh_config['api'].nil?
+        mhw_config.add_api(mh_config['api'], mh_name)
+      end
+    else
+      mhw_config.set_default_matterhorn_instance(mh_config)
+    end
+  end
 end
 
 logfile_path = File.expand_path('../../log/test.log', __FILE__)

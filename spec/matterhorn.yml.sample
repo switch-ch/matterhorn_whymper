@@ -1,8 +1,29 @@
 test:
-  protocol:  http
-  domain: admin.example.com
-  user: inser_system_user_name_here
-  password: insert_system_user_password_here
-  auth_mode: digest
-  ssl_dont_verify_cert: false
-  multi_tenant: false
+  p1:
+    endpoint:
+      protocol:  https
+      domain:    cast-ng-test.switch.ch
+      user:      <user>
+      password:  <password>
+      auth_mode: digest
+      ssl_dont_verify_cert: true
+      multi_tenant:         false
+  p2:
+    endpoint:
+      protocol:  https
+      domain:    cast-ng-test.switch.ch
+      user:      <user>
+      password:  <password>
+      auth_mode: digest
+      ssl_dont_verify_cert: true
+      multi_tenant:         true
+    api:
+      protocol:  https
+      domain:    cast-ng-test.switch.ch
+      user:      <user>
+      password:  <password>
+      auth_mode: basic
+      ssl_dont_verify_cert: true
+      multi_tenant:         true
+  default: p2
+

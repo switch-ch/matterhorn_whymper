@@ -3,10 +3,15 @@ require 'tempfile'
 
 describe Matterhorn::Endpoint::Series do
   before do
-    @series = Matterhorn::Endpoint::Series.new('enil.ch')
+    @series = Matterhorn::Endpoint::create(:series, 'enil.ch')
     stub_request(:head, %r{}).to_return(status: 200, body: '', headers: { 'WWW-Authenticate' => 'Basic realm="Matterhorn"' })
   end
 
+  after do
+    @series.close
+  end
+
+  
   it "reads a Dublin Core document for a series" do
     series_id = SecureRandom.uuid
     stub_request(:get, %r(/enil/series/#{series_id}.xml)).to_return(status: 200, body: file_fixture_contents('series_dublin_core.xml'))
