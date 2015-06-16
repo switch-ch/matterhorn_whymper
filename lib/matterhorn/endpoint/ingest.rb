@@ -9,7 +9,7 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
     unless @media_pkg_xml_remote then raise(Matterhorn::Error, "No media package is available!"); end
     @media_pkg_local.add_attachment(file, flavor)    if @media_pkg_local
     begin
-      spit_response http_endpoint_client.post(
+      split_response http_endpoint_client.post(
         "ingest/addAttachment",
         { 'flavor' => flavor,
           'mediaPackage' => @media_pkg_xml_remote,
