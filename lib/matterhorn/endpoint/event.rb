@@ -56,7 +56,8 @@ class Matterhorn::Endpoint::Event < Matterhorn::Endpoint
   # ------------------------------------------------------------------------------------- update ---
 
   def changeable_element?(element_name)
-    ['title', 'subject', 'description', 'language', 'license', 'source'].include?(element_name)
+    ['title', 'subject', 'description', 'language', 'license', 'source', 'isPartOf'].
+    include?(element_name)
   end 
 
 
