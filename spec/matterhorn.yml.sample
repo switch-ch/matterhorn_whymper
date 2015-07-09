@@ -2,7 +2,7 @@ test:
   p1:
     endpoint:
       protocol:  https
-      domain:    cast-ng-test.switch.ch
+      domain:    admin.cast-test.switch.ch
       user:      <user>
       password:  <password>
       auth_mode: digest
@@ -11,7 +11,7 @@ test:
   p2:
     endpoint:
       protocol:  https
-      domain:    cast-ng-test.switch.ch
+      domain:    producer.cast-test.switch.ch
       user:      <user>
       password:  <password>
       auth_mode: digest
@@ -19,11 +19,10 @@ test:
       multi_tenant:         true
     api:
       protocol:  https
-      domain:    cast-ng-test.switch.ch
+      domain:    api-ng.cast-test.switch.ch
       user:      <user>
       password:  <password>
       auth_mode: basic
       ssl_dont_verify_cert: true
       multi_tenant:         true
   default: p2
-
