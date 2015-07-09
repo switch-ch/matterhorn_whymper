@@ -6,7 +6,7 @@ if endpoint_configured?
     include Support::RemoteHelpers
 
     it "creates a mediapackage" do
-      Matterhorn::Endpoint.open(:ingest) do |ingest_endpoint|
+      Matterhorn::Endpoint.open(:ingest, nil, :p1) do |ingest_endpoint|
         ingest_endpoint.createMediaPackage()
         mp_local = ingest_endpoint.media_package
         mp_remote = ingest_endpoint.media_package('remote')

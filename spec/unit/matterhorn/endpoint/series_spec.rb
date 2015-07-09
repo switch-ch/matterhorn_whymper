@@ -4,7 +4,7 @@ require 'tempfile'
 describe Matterhorn::Endpoint::Series do
   before do
     @series = Matterhorn::Endpoint::create(:series, 'enil.ch')
-    stub_request(:head, %r{}).to_return(status: 200, body: '', headers: { 'WWW-Authenticate' => 'Basic realm="Matterhorn"' })
+    stub_request(:head, %r()).to_return(status: 200, body: '', headers: { 'WWW-Authenticate' => 'Basic realm="Matterhorn"' })
   end
 
   after do
@@ -14,7 +14,7 @@ describe Matterhorn::Endpoint::Series do
   
   it "reads a Dublin Core document for a series" do
     series_id = SecureRandom.uuid
-    stub_request(:get, %r(/enil/series/#{series_id}.xml)).to_return(status: 200, body: file_fixture_contents('series_dublin_core.xml'))
+    stub_request(:get, %r(https://enil-ch.producer.cast-test.switch.ch/series/#{series_id}.xml)).to_return(status: 200, body: file_fixture_contents('series_dublin_core.xml'))
 
     dublin_core = @series.read(series_id)
     expect(dublin_core.dcterms_title).to eq('Space is Awesome')
@@ -22,7 +22,7 @@ describe Matterhorn::Endpoint::Series do
 
   it "returns an error when reading a Dublin Core document for a non-existent series" do
     series_id = SecureRandom.uuid
-    stub_request(:get, %r(/enil/series/#{series_id}.xml)).to_return(status: 404, body: '')
+    stub_request(:get, %r(https://enil-ch.producer.cast-test.switch.ch/series/#{series_id}.xml)).to_return(status: 404, body: '')
 
     dublin_core = @series.read(series_id)
     expect(dublin_core).to be_nil

@@ -16,22 +16,25 @@ module Matterhorn
   
     def initialize(protocol, domain, org_domain, user, password, auth_mode,
                    http_timeout = nil, ssl_dont_verify_cert = false, multi_tenant = true)
-      @sub_domain   = org_domain.to_s.split('.').first.to_s.strip
-      @uri          = URI.parse("#{protocol}://#{domain}")
+      @multi_tenant = multi_tenant
+      @uri = if @multi_tenant
+               URI.parse("#{protocol}://#{org_domain.gsub(/\./, '-')}.#{domain}")
+             else
+               URI.parse("#{protocol}://#{domain}")
+             end
       @uri.user     = user
       @uri.password = password 
       @auth_mode    = auth_mode
       @ssl          = @uri.port == 443 ? true : false
       @timeout      = http_timeout
       @ssl_dont_verify_cert = ssl_dont_verify_cert
-      @multi_tenant = multi_tenant
     end  
   
 
     # ---------------------------------------------------------------------------- http methodes ---
   
     def get(url)
-      request = Net::HTTP::Get.new(assemble_url(url))
+      request = Net::HTTP::Get.new(@uri.request_uri + url)
       execute_request(request)
     end
   
@@ -47,14 +50,14 @@ module Matterhorn
   
 
     def put(url, params = {})
-      request = Net::HTTP::Put.new(assemble_url(url))
+      request = Net::HTTP::Put.new(@uri.request_uri + url)
       request.set_form_data(params)
       execute_request(request)
     end
   
 
     def delete(url)
-      request = Net::HTTP::Delete.new(assemble_url(url))
+      request = Net::HTTP::Delete.new(@uri.request_uri + url)
       execute_request(request)
     end
   
@@ -80,17 +83,8 @@ module Matterhorn
     end
   
    
-    def assemble_url(url)
-      if @multi_tenant && !@sub_domain.empty?
-        @uri.request_uri + "#{@sub_domain}/" + url
-      else
-        @uri.request_uri + url
-      end
-    end
-  
-
     def singlepart_post(url, params)
-      request = Net::HTTP::Post.new(assemble_url(url))
+      request = Net::HTTP::Post.new(@uri.request_uri + url)
       request.set_form_data(params)
       request
     end
@@ -118,7 +112,7 @@ module Matterhorn
         mime_type = MIME::Types.type_for(File.basename(file.path)).first
       end
       params['BODY'] = UploadIO.new(file, mime_type, filename)
-      Net::HTTP::Post::Multipart.new(assemble_url(url), params)
+      Net::HTTP::Post::Multipart.new(@uri.request_uri + url, params)
     end
   
   
