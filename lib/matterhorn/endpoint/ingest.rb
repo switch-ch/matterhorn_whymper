@@ -112,10 +112,11 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
   # If the source_path to the source folder of uploaded items for that media package is given,
   # then a local media description file 'manifest.xml' will be automaticaly saved in that folder.
   #
-  def createMediaPackage(source_path = nil)
+  def createMediaPackage(source_path = nil, prefix = nil)
     if @media_pkg_xml_remote then raise(Matterhorn::Error, "A media package is allready created!"); end
     @media_pkg_local = if source_path
-                         Matterhorn::MediaPackage.new(nil, {:path => source_path})
+                         Matterhorn::MediaPackage.new(nil, {:path     => source_path,
+                                                            :prefix => prefix})
                        else
                          nil
                        end

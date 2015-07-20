@@ -25,11 +25,17 @@ class Matterhorn::MediaPackage
       end
       .doc
     end
-    if (path = options[:path])
-      @path = path + (path[-1] == '/' ? '' : '/')            # guarantee that path ends with a slash
-    else
-      @path = nil
-    end
+    @path     = if (path = options[:path])
+                  path + (path[-1] == '/' ? '' : '/')        # guarantee that path ends with a slash
+                else
+                  nil
+                end
+    @prefix   = options[:prefix]
+    @filename = if @prefix
+                  "#{@prefix}_manifest.xml"
+                else
+                  'manifest.xml'
+                end
   end
 
 
@@ -87,7 +93,7 @@ class Matterhorn::MediaPackage
 
 
   def add_dc_catalog(dublin_core)
-    filename = 'dublincore.xml'
+    filename = @prefix ? "#{@prefix}_dublincore.xml" : 'dublincore.xml'
     flavor   = 'dublincore/episode'
     dc_doc   = Nokogiri::XML(dublin_core)
     dc_file  = File.join(@path, filename)
@@ -145,11 +151,11 @@ class Matterhorn::MediaPackage
   end
 
 
-  def save(path = @path)
+  def save(path = @path, filename = @filename)
     unless path
       raise(Matterhorn::Error, "No path was set, where manifest file should be saved!")
     end
-    manifest_file = File.join(path, 'manifest.xml')
+    manifest_file = File.join(path, filename)
     File.open(manifest_file, 'w') do |file|
       file.write(to_xml)
     end
