@@ -22,7 +22,7 @@ class Matterhorn::Endpoint::Staticfiles < Matterhorn::Endpoint
       )
       uuid = response_body
     rescue => ex
-      exception_handler('create', ex, {
+      exception_handler('upload', ex, {
           400 => "No filename or file to upload found. Or the uploaded size is too big"
         }
       )
@@ -42,7 +42,7 @@ class Matterhorn::Endpoint::Staticfiles < Matterhorn::Endpoint
       )
       persisted = true
     rescue => ex
-      exception_handler('read', ex, {
+      exception_handler('persist', ex, {
           400 => "No file by the given UUID #{uuid} found."
         }
       )
@@ -71,7 +71,7 @@ class Matterhorn::Endpoint::Staticfiles < Matterhorn::Endpoint
       )
       deleted = true
     rescue => ex
-      exception_handler('read', ex, {
+      exception_handler('delete', ex, {
           400 => "No file by the given UUID #{uuid} found."
         }
       )

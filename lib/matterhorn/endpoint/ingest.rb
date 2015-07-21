@@ -64,7 +64,7 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
       )
       @media_pkg_xml_remote = response_body
     rescue => ex
-      exception_handler('create', ex, {
+      exception_handler('addDCCatalog', ex, {
           400 => "Media package not valid! / media package:\n#{@media_pkg_xml_remote}"
         }
       )
@@ -144,7 +144,7 @@ class Matterhorn::Endpoint::Ingest < Matterhorn::Endpoint
       )
       @workflow_inst = response_body
     rescue => ex
-      exception_handler('create', ex, {
+      exception_handler('ingest', ex, {
           400 => "Media package not valid! / media package:\n#{@media_pkg_xml_remote}"
         }
       )
