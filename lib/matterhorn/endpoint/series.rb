@@ -34,6 +34,30 @@ class Matterhorn::Endpoint::Series < Matterhorn::Endpoint
   end
 
 
+  # Create a new property for a given Series on Mattherhorn.
+  # Return no content.
+  #
+  def create_property(series_id, name, value)
+    return false    if value.nil? || value.to_s.empty?
+    set = false
+    begin
+      split_response http_endpoint_client.post(
+        "series/#{series_id}/property",
+        { 'name' => name, 'value' => value.to_s }
+      )
+      set = true
+    rescue => ex
+      exception_handler('create_property', ex, {
+          400 => "The required path or form params were missing in the request.",
+          401 => "If the current user is not authorized to perform this action .",
+          404 => "No series with this identifier was found."
+        }
+      )
+    end
+    set
+  end
+
+
   # --------------------------------------------------------------------------------------- read ---
 
   def read(series_id)
@@ -64,12 +88,30 @@ class Matterhorn::Endpoint::Series < Matterhorn::Endpoint
       )
       acl_model = Matterhorn::Acl.new(response_body)
     rescue => ex
-      exception_handler('acl', ex, {
+      exception_handler('read_acl', ex, {
           404 => "The acl of series #{series_id} could not be found."
         }
       )
     end
     acl_model
+  end
+
+  
+  def read_property(series_id, name)
+    prop_value = nil
+    begin
+      split_response http_endpoint_client.get(
+        "series/#{series_id}/property/#{name}.json"
+      )
+      prop_value = response_body
+    rescue => ex
+      exception_handler('read_property', ex, {
+          401 => "The current user is not authorized to perform this action.",
+          404 => "The series #{series_id} or property #{name} has not been found."
+        }
+      )
+    end
+    prop_value
   end
 
   
@@ -84,7 +126,7 @@ class Matterhorn::Endpoint::Series < Matterhorn::Endpoint
         dc_models << Matterhorn::DublinCore.new(dc_elem.to_xml)
       end
     rescue => ex
-      exception_handler('filter', ex, {
+      exception_handler('find', ex, {
           401 => "Unauthorized. It is required to authenticate first, " +
                  "before filter series."
         }
@@ -170,6 +212,24 @@ class Matterhorn::Endpoint::Series < Matterhorn::Endpoint
   end   
 
 
+  def delete_property(series_id, name)
+    deleted = false
+    begin
+      split_response http_endpoint_client.delete(
+        "series/#{series_id}/property/#{name}"
+      )
+      deleted = true
+    rescue => ex
+      exception_handler('delete_property', ex, {
+          401 => "The current user is not authorized to perform this action.",
+          404 => "The series #{series_id} or property #{name} has not been found."
+        }
+      )
+    end
+    deleted
+  end
+
+  
   # ---------------------------------------------------------------------------- private section ---
   private
 
