@@ -1,9 +1,9 @@
 require 'uri'
 
 
-# ============================================================= Matterhorn::Endpoint::StaticFile ===
+# ============================================================ Matterhorn::Endpoint::Staticfiles ===
 
-class Matterhorn::Endpoint::StaticFile < Matterhorn::Endpoint
+class Matterhorn::Endpoint::Staticfiles < Matterhorn::Endpoint
 
 
   # -------------------------------------------------------------------------- endpoint methodes ---
@@ -84,4 +84,4 @@ class Matterhorn::Endpoint::StaticFile < Matterhorn::Endpoint
   private
 
 
-end # ------------------------------------------------------ end Matterhorn::Endpoint::StaticFile --
+end # -------------------------------------------------------- Matterhorn::Endpoint::Staticfiles ---
