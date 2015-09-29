@@ -1,0 +1,23 @@
+<?xml version="1.1" encoding="UTF-8" standalone="yes"?>
+<!--
+   - A good source of information about SMIL is this:
+   - http://service.real.com/help/library/guides/realone/ProductionGuide/HTML/htmfiles/timing.htm
+   -->
+<smil xmlns="http://www.w3.org/ns/SMIL" version="3.0">
+  <!-- The head tag, even if empty, is absolutely required since otherwise the SMIL parser
+     - starts duplicating elements. -->
+  <head/>
+  <body>
+    <seq>
+      <!-- Play video.mp4 from the 0s to the 2s marker of its timeline. -->
+      <video src="${source}" clipBegin="0s" clipEnd="2s"/>
+      <!-- Play video.mp4 from the 10s to the 22s marker of its timeline.
+         - In conjunction with the previous video tag this cuts out 8s from position 2s to 10s -->
+      <video src="${source}" clipBegin="10s" clipEnd="22s"/>
+      <!-- Play video.mp4 from the 30s marker to the end of its timeline.
+         - In conjunction with the previous video tag this cuts out 8s from position 22s to 30s 
+         - Please note that the clip end must be provided. -->
+      <video src="${source}" clipBegin="30s" clipEnd="60s"/>
+    </seq>
+  </body>
+</smil>

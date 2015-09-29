@@ -102,12 +102,12 @@ class Matterhorn::Endpoint::Group < Matterhorn::Endpoint
     if roles.kind_of?(String)
       form_param['roles'] = roles
     elsif roles.kind_of?(Array)
-      form_param['roles'] = roles.compact.join(',')
+      form_param['roles'] = roles.compact.uniq.join(',')
     end
     if users.kind_of?(String)
       form_param['users'] = users
     elsif users.kind_of?(Array)
-      form_param['users'] = users.compact.join(',')
+      form_param['users'] = users.compact.uniq.join(',')
     end
     form_param
   end
