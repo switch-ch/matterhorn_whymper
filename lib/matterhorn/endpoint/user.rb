@@ -173,7 +173,7 @@ class Matterhorn::Endpoint::User < Matterhorn::Endpoint
 
 
   def filter_roles(roles_hash)
-    role_list = { 'role' => [] }
+    role_list = []
     return role_list    if roles_hash.nil? ||
                            !roles_hash.kind_of?(Hash) ||
                            roles_hash['role'].nil?
@@ -183,7 +183,7 @@ class Matterhorn::Endpoint::User < Matterhorn::Endpoint
     roles_hash['role'].each do |role|
       next unless role.kind_of?(Hash) &&
                   !role['name'].nil?
-      role_list['role'] << role['name']
+      role_list << role['name']
     end
     role_list
   end
