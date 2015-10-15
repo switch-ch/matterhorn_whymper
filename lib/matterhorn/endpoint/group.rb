@@ -35,11 +35,28 @@ class Matterhorn::Endpoint::Group < Matterhorn::Endpoint
 
   # --------------------------------------------------------------------------------------- read ---
 
+  # Return a list of groups as a hash
+  # {
+  #   'groups' => {
+  #     'group' => [
+  #       {
+  #         'id' => <group_id>,
+  #         'name' => <name>,
+  #         'description' => <description>,
+  #         'role' => <role>,
+  #         'memebers' => [ <username>, ... ],
+  #         'roles' => [ <role>, ...],
+  #       },
+  #       ...
+  #     ]
+  #   }
+  # }
+  #
   def index(offset = 0, limit = 100)
     groups = {}
     begin
       split_response http_endpoint_client.get(
-        "groups/groups.json"
+        "groups/groups.json?limit=#{limit}&offset=#{offset}"
       )
       groups = filter_groups(JSON.parse(response_body))
     rescue => ex
@@ -114,40 +131,55 @@ class Matterhorn::Endpoint::Group < Matterhorn::Endpoint
   
 
   def filter_groups(respons_hash)
-    MatterhornWhymper.logger.debug { respons_hash.inspect }
-    groups = { }
+    unless respons_hash['groups']['group'].kind_of?(Array)
+      respons_hash['groups']['group'] = [ respons_hash['groups']['group'] ]
+    end
+    groups = { 'groups' => { 'group' => [] } }
     respons_hash['groups']['group'].each do |group_hash|
-
-      groups[group_hash['id']] = {
-        :group_id => group_hash['id'],
-        :name => group_hash['name'],
-        :description => group_hash['description'],
-        :role => group_hash['role'],
+      next unless group_hash.kind_of?(Hash)
+      groups['groups']['group'] << {
+        'id' => group_hash['id'],
+        'name' => group_hash['name'],
+        'description' => group_hash['description'],
+        'role' => group_hash['role'],
+        'members' => filter_members(group_hash['members']),
+        'roles' => filter_roles(group_hash['roles'])
       }
-
-      groups[group_hash['id']][:members] = 
-        if    group_hash['members'].nil?                       then []
-        elsif group_hash['members'].kind_of?(String)           then []
-        elsif group_hash['members']['member'].nil?             then []
-        elsif group_hash['members']['member'].kind_of?(Array)  then group_hash['members']['member']
-        elsif group_hash['members']['member'].kind_of?(String) then [ group_hash['members']['member'] ]
-        else                                                        []
-        end
-
-      groups[group_hash['id']][:roles] = 
-        if    group_hash['roles'].nil?                    then []
-        elsif group_hash['roles'].kind_of?(String) &&
-              group_hash['roles'].empty?                  then []
-        elsif group_hash['roles'].kind_of?(String) &&
-              !group_hash['roles'].empty?                 then [ group_hash['roles'] ]
-        elsif group_hash['roles']['role'].nil?            then []
-        elsif group_hash['roles']['role'].kind_of?(Array) then group_hash['roles']['role'].map { |r| r['name'] }
-        elsif group_hash['roles']['role'].kind_of?(Hash)  then [ group_hash['roles']['role']['name'] ]
-        else                                                   []
-        end
-
     end
     groups
+  end
+
+
+  def filter_members(members_hash)
+    member_list = { 'member' => [] } 
+    return member_list    if members_hash.nil? ||
+                             !members_hash.kind_of?(Hash) ||
+                             members_hash['member'].nil?
+    unless members_hash['member'].kind_of?(Array)
+      members_hash['member'] = [ members_hash['member'] ]
+    end
+    members_hash['member'].each do |member|
+      next unless member.kind_of?(String)
+      member_list['member'] << member
+    end
+    member_list
+  end
+
+
+  def filter_roles(roles_hash)
+    role_list = { 'role' => [] }
+    return role_list    if roles_hash.nil? ||
+                           !roles_hash.kind_of?(Hash) ||
+                           roles_hash['role'].nil?
+    unless roles_hash['role'].kind_of?(Array)
+      roles_hash['role'] = [ roles_hash['role'] ]
+    end
+    roles_hash['role'].each do |role|
+      next unless role.kind_of?(Hash) &&
+                  !role['name'].nil?
+      role_list['role'] << role['name']
+    end
+    role_list
   end
 
 
