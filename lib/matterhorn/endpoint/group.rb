@@ -131,11 +131,18 @@ class Matterhorn::Endpoint::Group < Matterhorn::Endpoint
   
 
   def filter_groups(respons_hash)
-    unless respons_hash['groups']['group'].kind_of?(Array)
-      respons_hash['groups']['group'] = [ respons_hash['groups']['group'] ]
-    end
     groups = { 'groups' => { 'group' => [] } }
-    respons_hash['groups']['group'].each do |group_hash|
+    return groups    if respons_hash.nil? ||
+                        !respons_hash.kind_of?(Hash) ||
+                        respons_hash['groups'].nil?
+    groups_hash = respons_hash['groups']
+    return groups    if groups_hash.nil? ||
+                        !groups_hash.kind_of?(Hash) ||
+                        groups_hash['group'].nil?
+    unless groups_hash['group'].kind_of?(Array)
+      groups_hash['group'] = [ groups_hash['group'] ]
+    end
+    groups_hash['group'].each do |group_hash|
       next unless group_hash.kind_of?(Hash)
       groups['groups']['group'] << {
         'id' => group_hash['id'],

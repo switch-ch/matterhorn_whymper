@@ -141,11 +141,19 @@ class Matterhorn::Endpoint::User < Matterhorn::Endpoint
   
 
   def filter_users(respons_hash)
-    unless respons_hash['users']['user'].kind_of?(Array)
-      respons_hash['users']['user'] = [ respons_hash['users']['user'] ]
+    users = { 'users' => { 'user' => [] } }
+    return users    if respons_hash.nil? ||
+                       !respons_hash.kind_of?(Hash) ||
+                       respons_hash['users'].nil?
+    users_hash = respons_hash['users']
+    return users    if users_hash.nil? ||
+                       !users_hash.kind_of?(Hash) ||
+                       users_hash['user'].nil?
+    unless users_hash['user'].kind_of?(Array)
+      users_hash['user'] = [ users_hash['user'] ]
     end
     users = { 'users' => { 'user' => [] } }
-    respons_hash['users']['user'].each do |user_hash|
+    users_hash['user'].each do |user_hash|
       next unless user_hash.kind_of?(Hash)
       users['users']['user'] << filter_user(user_hash)
     end
