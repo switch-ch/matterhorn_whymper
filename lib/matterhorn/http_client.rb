@@ -17,7 +17,7 @@ module Matterhorn
     def initialize(protocol, domain, org_domain, user, password, auth_mode,
                    http_timeout = nil, ssl_dont_verify_cert = false, multi_tenant = true)
       @multi_tenant = multi_tenant
-      @uri = if @multi_tenant && !org_domain.empty?
+      @uri = if @multi_tenant && !org_domain.nil? && !org_domain.empty?
                URI.parse("#{protocol}://#{org_domain.gsub(/\./, '-')}.#{domain}")
              else
                URI.parse("#{protocol}://#{domain}")
