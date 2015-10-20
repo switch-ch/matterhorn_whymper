@@ -155,7 +155,7 @@ class Matterhorn::Endpoint::User < Matterhorn::Endpoint
     form_param['password'] = password.to_s
     form_param['name']     = name.to_s
     form_param['email']    = email.to_s
-    form_param['roles']    = roles.to_s
+    form_param['roles']    = roles.to_json
     form_param
   end
   
