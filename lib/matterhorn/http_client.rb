@@ -33,8 +33,8 @@ module Matterhorn
 
     # ---------------------------------------------------------------------------- http methodes ---
   
-    def get(url)
-      request = Net::HTTP::Get.new(@uri.request_uri + url)
+    def get(url, headers = nil)
+      request = Net::HTTP::Get.new(@uri.request_uri + url, headers)
       execute_request(request)
     end
   

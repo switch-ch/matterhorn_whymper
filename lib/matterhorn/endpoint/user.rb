@@ -87,6 +87,26 @@ class Matterhorn::Endpoint::User < Matterhorn::Endpoint
   end
 
 
+  def info_me(username = nil)
+    me = nil
+    begin
+      headers = {}
+      headers['X-RUN-AS-USER'] = username   unless username.nil?
+      split_response http_api_client.get(
+        "api/info/me", headers
+      )
+      me = JSON.parse(response_body)
+    rescue => ex
+      exception_handler('info_me', ex, {
+          403 => "User[#{username}] has not access!",
+          404 => "User[#{username}] not found!"
+        }
+      )
+    end
+    me
+  end
+
+
   # ------------------------------------------------------------------------------------- update ---
 
   def update(username, password, name, email, roles)
