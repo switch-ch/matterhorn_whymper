@@ -1,0 +1,21 @@
+# ------------------------------------------------------------------------ default configuration ---
+
+
+p2:
+  endpoint:
+    protocol:  https
+    domain:    producer.cast-test.switch.ch
+    user:      matterhorn_system_account
+    password:  <password>
+    auth_mode: digest
+    ssl_dont_verify_cert: true
+    multi_tenant:         true
+  api:
+    protocol:  https
+    domain:    api-ng.cast-test.switch.ch
+    user:      cast
+    password:  <password>
+    auth_mode: basic
+    ssl_dont_verify_cert: true
+    multi_tenant:         true
+default: p2
