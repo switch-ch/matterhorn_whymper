@@ -21,3 +21,4 @@ log
 *.o
 *.a
 mkmf.log
+matterhorn.yml
