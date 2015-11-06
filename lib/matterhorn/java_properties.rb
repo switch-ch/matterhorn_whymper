@@ -12,7 +12,7 @@ class Matterhorn::JavaProperties
 
   def self.write(hash, path, options = {})
     xml = generate_xml(hash, options)
-    MatterhornWhymper.warn { "xml = #{xml}" }
+    MatterhornWhymper.logger.warn { "xml = #{xml}" }
     File.write(path, generate_xml(hash, options))
   end
 
