@@ -17,7 +17,7 @@ class Matterhorn::JavaProperties
 
 
   def self.generate_xml(hash, options = {})
-    Nokogiri::XML::Builder.new do |xml|
+    Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
       xml.doc.create_internal_subset('properties', nil, 'http://java.sun.com/dtd/properties.dtd')
       xml.properties do
         xml.comment_(options[:comment])    unless options[:comment].nil?
