@@ -21,7 +21,7 @@ class Matterhorn::Endpoint::Event < Matterhorn::Endpoint
     media_package = nil
     begin
       split_response http_endpoint_client.get(
-        "archive/archive/mediapackage/#{event_id}"
+        "archive/mediapackage/#{event_id}"
       )
       media_package = Matterhorn::MediaPackage.new(response_body)
     rescue => ex
