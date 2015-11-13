@@ -109,7 +109,14 @@ module Matterhorn
         filename = File.basename(file.path)
       end
       if mime_type.nil?
-        mime_type = MIME::Types.type_for(File.basename(file.path)).first
+        mime_types = MIME::Types.type_for(File.basename(file.path))
+        mime_type = mime_types.first
+        mime_types.each do |mt|
+          if mt.to_s =~ /^text/
+            mime_type = mt
+            break
+          end
+        end
       end
       params['BODY'] = UploadIO.new(file, mime_type, filename)
       Net::HTTP::Post::Multipart.new(@uri.request_uri + url, params)
