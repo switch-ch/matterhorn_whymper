@@ -17,39 +17,20 @@ class Matterhorn::Endpoint::Event < Matterhorn::Endpoint
 
   # --------------------------------------------------------------------------------------- read ---
 
-  def read_media_package(event_id)
-    media_package = nil
+  def read(event_id)
+    event = nil
     begin
-      split_response http_endpoint_client.get(
-        "archive/archive/mediapackage/#{event_id}"
+      split_response http_api_client.get(
+        "api/events/#{event_id}"
       )
-      media_package = Matterhorn::MediaPackage.new(response_body)
+      event = JSON.parse(response_body)
     rescue => ex
-      exception_handler('read_media_package', ex, {
-          404 => "The media package of event[#{event_id}] could not be found."
+      exception_handler('read', ex, {
+          404 => "The Event[#{event_id}] could not be found!"
         }
       )
     end
-    media_package
-  end
-
-
-  def read_dublin_core(event_id)
-    dublin_core = nil
-    begin
-      mp = read_media_package(event_id)
-      if !mp.nil?
-        dc_uri = URI.parse(mp.dc_catalog_url)
-        split_response http_endpoint_client.get(dc_uri.request_uri)
-        dublin_core = Matterhorn::DublinCore.new(response_body)
-      end
-    rescue => ex
-      exception_handler('read_dublin_core', ex, {
-          404 => "The media package of event[#{event_id}] could not be found."
-        }
-      )
-    end
-    dublin_core
+    event
   end
 
 
@@ -93,12 +74,18 @@ class Matterhorn::Endpoint::Event < Matterhorn::Endpoint
 
   def delete(event_id)
     begin
-      split_response http_endpoint_client.delete(
-        "archive/delete/#{event_id}"
+      done = false
+      split_response http_api_client.delete(
+        "api/events/#{event_id}"
       )
+      done = true
     rescue => ex
-      exception_handler('delete', ex, {})
+      exception_handler('delete', ex, {
+          404 => "The Event[#{event_id}] could not be found!"
+        }
+      )
     end
+    done
   end
 
 
