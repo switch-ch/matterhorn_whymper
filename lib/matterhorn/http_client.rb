@@ -110,17 +110,17 @@ module Matterhorn
       end
       if mime_type.nil?
         mime_types = MIME::Types.type_for(File.basename(file.path))
-        MatterhornWhymper.logger.info { "#{self.class.namd}#multipart_post | mime_types: #{mime_types}" }
+        MatterhornWhymper.logger.info { "#{self.class.name}#multipart_post | mime_types: #{mime_types}" }
         mime_type = mime_types.first
         mime_types.each do |mt|
           if mt.to_s =~ /^text/
             mime_type = mt
-            MatterhornWhymper.logger.info { "#{self.class.namd}#multipart_post | text mime type: #{mime_type.to_s}" }
+            MatterhornWhymper.logger.info { "#{self.class.name}#multipart_post | text mime type: #{mime_type.to_s}" }
             break
           end
         end
       end
-      MatterhornWhymper.logger.info { "#{self.class.namd}#multipart_post | UploadIO params: file = #{file}; mime_type = #{mime_type.to_s}; filename = #{filename}" }
+      MatterhornWhymper.logger.info { "#{self.class.name}#multipart_post | UploadIO params: file = #{file}; mime_type = #{mime_type.to_s}; filename = #{filename}" }
       params['BODY'] = UploadIO.new(file, mime_type, filename)
       Net::HTTP::Post::Multipart.new(@uri.request_uri + url, params)
     end
