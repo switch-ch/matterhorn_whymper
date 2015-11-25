@@ -87,6 +87,20 @@ class Matterhorn::Endpoint::User < Matterhorn::Endpoint
   end
 
 
+  def api
+    info = nil
+    begin
+      split_response http_api_client.get(
+        "api"
+      )
+      info = JSON.parse(response_body)
+    rescue => ex
+      exception_handler('api', ex, {})
+    end
+    info
+  end
+
+
   def info_me(username = nil)
     me = nil
     begin
