@@ -23,6 +23,7 @@ require 'matterhorn/java_properties'
 require 'matterhorn/media_package'
 require 'matterhorn/smil'
 require 'matterhorn/workflow_instance'
+require 'matterhorn/workflow_statistics'
 
 
 # ============================================================================ MatterhornWhymper ===

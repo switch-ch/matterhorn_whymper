@@ -5,6 +5,10 @@ class Matterhorn::Endpoint::Workflow < Matterhorn::Endpoint
 
   # -------------------------------------------------------------------------- endpoint methodes ---
 
+  # ------------------------------------------------------------------------------------- create ---
+
+  # --------------------------------------------------------------------------------------- read ---
+
   def instance(wi_id)
     wi = nil
     begin
@@ -22,22 +26,21 @@ class Matterhorn::Endpoint::Workflow < Matterhorn::Endpoint
   end
 
 
-  def remove(wi_id)
-    wi_removed = false
+  def statistics
+    stati = nil
     begin
-      split_response http_endpoint_client.delete(
-        "workflow/remove/#{wi_id}"
+      split_response http_endpoint_client.get(
+        "workflow/statistics.json"
       )
-      wi_removed = true
+      stati = JSON.parse(response_body)
     rescue => ex
-      exception_handler('remove', ex, {
-          404 => "WorkflowInstance[#{wi_id}]: No workflow instance with that identifier exists."
-        }
-      )
+      exception_handler('statistics', ex, {})
     end
-    wi_removed
+    stati ? Matterhorn::WorkflowStatistics.new(stati) : nil
   end
 
+
+  # ------------------------------------------------------------------------------------- update ---
 
   def resume(wi_id)
     wi = nil
@@ -74,6 +77,25 @@ class Matterhorn::Endpoint::Workflow < Matterhorn::Endpoint
       )
     end
     wi ? Matterhorn::WorkflowInstance.new(wi) : nil
+  end
+
+
+  # ------------------------------------------------------------------------------------- delete ---
+
+  def remove(wi_id)
+    wi_removed = false
+    begin
+      split_response http_endpoint_client.delete(
+        "workflow/remove/#{wi_id}"
+      )
+      wi_removed = true
+    rescue => ex
+      exception_handler('remove', ex, {
+          404 => "WorkflowInstance[#{wi_id}]: No workflow instance with that identifier exists."
+        }
+      )
+    end
+    wi_removed
   end
 
   
