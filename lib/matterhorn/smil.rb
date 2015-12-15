@@ -130,6 +130,7 @@ module Matterhorn
       @end_point   = nil
       @rel_begin   = nil
       @duration    = nil
+      @scene_list  = Array.new
       @parent      = parent
     end
 
@@ -148,6 +149,14 @@ module Matterhorn
     end
 
     
+    def add_scene(file, clip_begin, clip_end)
+      scene = Smil::Scene.new(self, file, clip_begin, clip_end)
+      @scene_list.sort! { |a, b| a.clip_begin <=> b.clip_begin }
+      @scene_list << scene
+      scene
+    end
+
+
     # ------------------------------------------------------------------------ protected section ---
     protected
 
@@ -268,6 +277,10 @@ module Matterhorn
         @seq_list.each do |seq|
           seq.to_xml(bx)
         end
+        @scene_list.each do |scene|
+          scene.to_xml(bx)
+        end
+
       end
     end
 
@@ -286,7 +299,6 @@ module Matterhorn
     def initialize(parent)
       super(parent)
       @track_list = Array.new
-      @scene_list = Array.new
     end
 
 
@@ -305,14 +317,6 @@ module Matterhorn
       @track_list.sort! { |a, b| a.start_point <=> b.start_point }
       update(track)
       track
-    end
-
-
-    def add_scene(file, clip_begin, clip_end)
-      scene = Smil::Scene.new(self, file, clip_begin, clip_end)
-      @scene_list.sort! { |a, b| a.clip_begin <=> b.clip_begin }
-      @scene_list << scene
-      scene
     end
 
 
@@ -400,7 +404,7 @@ module Matterhorn
 
     def to_xml(bx)
       attributes = Hash.new
-      attributes[:src] = @src.to_s
+      attributes[:src] = @src.to_s    if !@src.nil? && !@src.empty?
       attributes[:clipBegin] = "#{(@clip_begin * 1000).round.to_s}ms"
       attributes[:clipEnd]   = "#{(@clip_end   * 1000).round.to_s}ms"
       bx.video(attributes)
