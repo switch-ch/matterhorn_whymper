@@ -7,6 +7,28 @@ class Matterhorn::Endpoint::Workflow < Matterhorn::Endpoint
 
   # ------------------------------------------------------------------------------------- create ---
 
+  def start(workflow_definition, mediapackage_xml, parent = nil, properties = nil)
+    wi = nil
+    begin
+      params = {}
+      params['definition']   = workflow_definition
+      params['mediapackage'] = mediapackage_xml
+      params['parent']       = parent               if !parent.nil?
+      params['properties']   = properties           if !properties.nil?
+      split_response http_endpoint_client.post(
+        "workflow/start", params
+      )
+      wi = response_body
+    rescue => ex
+      exception_handler('stop', ex, {
+          404 => "Parent WorkflowInstance[#{parent}] does not exist."
+        }
+      )
+    end
+    wi ? Matterhorn::WorkflowInstance.new(wi) : nil
+  end
+
+
   # --------------------------------------------------------------------------------------- read ---
 
   def instance(wi_id)
